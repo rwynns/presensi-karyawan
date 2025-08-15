@@ -123,4 +123,17 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Map Service Configuration
+    |--------------------------------------------------------------------------
+    |
+    | This option controls which map service to use for location placement
+    | features. Set to true to use OpenStreetMap (free), or false to use
+    | Google Maps (requires API key).
+    |
+    */
+
+    'use_openstreetmap' => env('USE_OPENSTREETMAP', false),
+
 ];

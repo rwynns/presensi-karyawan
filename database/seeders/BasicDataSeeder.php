@@ -15,10 +15,9 @@ class BasicDataSeeder extends Seeder
      */
     public function run(): void
     {
-        // Seed Roles
+        // Seed Roles - Hanya 2 role untuk sistem presensi
         $roles = [
             ['nama_role' => 'Admin'],
-            ['nama_role' => 'Manager'],
             ['nama_role' => 'Karyawan'],
         ];
 

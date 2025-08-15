@@ -44,6 +44,16 @@ class AuthController extends Controller
         ]);
 
         if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+
+            // Cek apakah akun sudah aktif (untuk karyawan)
+            if ($user->role_id != 1 && !$user->is_active) {
+                Auth::logout();
+                return back()->withErrors([
+                    'email' => 'Akun Anda belum diaktivasi oleh admin. Silakan hubungi admin untuk aktivasi akun.',
+                ])->onlyInput('email');
+            }
+
             $request->session()->regenerate();
 
             // Record login history if needed
@@ -81,13 +91,12 @@ class AuthController extends Controller
             'jabatan_id' => $request->jabatan_id,
             'lokasi_id' => $request->lokasi_id,
             'alamat' => $request->alamat,
-            'role_id' => $defaultRole ? $defaultRole->id : null,
+            'role_id' => $defaultRole ? $defaultRole->id : 2, // Default ke role_id = 2 (Karyawan)
+            'is_active' => false, // Akun tidak aktif secara default, harus disetujui admin
         ]);
 
-        // Auto login after registration
-        Auth::login($user);
-
-        return redirect('/dashboard')->with('success', 'Registrasi berhasil! Selamat datang di sistem presensi.');
+        // Redirect ke login dengan pesan informasi
+        return redirect('/login')->with('success', 'Registrasi berhasil! Akun Anda sedang menunggu persetujuan admin. Silakan hubungi admin untuk aktivasi akun.');
     }
 
     /**

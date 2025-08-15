@@ -14,19 +14,24 @@ return new class extends Migration
         Schema::create('izin', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->date('tanggal_izin');
+            $table->string('jenis_izin', 50); // sakit, cuti, izin_khusus, dll
+            $table->date('tanggal_mulai');
+            $table->date('tanggal_selesai');
             $table->text('alasan');
-            $table->string('bukti_file', 255)->nullable();
+            $table->string('file_pendukung', 255)->nullable(); // dokumen pendukung
             $table->string('status', 20)->default('pending'); // pending, approved, rejected
+            $table->text('keterangan_admin')->nullable(); // catatan dari admin
             $table->timestamps();
-            
+
             // Foreign key constraint
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            
+
             // Indexes for better performance
             $table->index('user_id');
-            $table->index('tanggal_izin');
+            $table->index('tanggal_mulai');
+            $table->index('tanggal_selesai');
             $table->index('status');
+            $table->index('jenis_izin');
         });
     }
 

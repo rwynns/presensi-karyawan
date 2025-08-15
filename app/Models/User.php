@@ -25,7 +25,8 @@ class User extends Authenticatable
         'alamat',
         'role_id',
         'lokasi_id',
-        'jabatan_id'
+        'jabatan_id',
+        'is_active'
     ];
 
     /**
@@ -48,6 +49,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
 
@@ -70,7 +72,7 @@ class User extends Authenticatable
     /**
      * Relationship with Lokasi Penempatan
      */
-    public function lokasi()
+    public function lokasiPenempatan()
     {
         return $this->belongsTo(LokasiPenempatan::class, 'lokasi_id');
     }
