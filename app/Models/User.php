@@ -21,6 +21,7 @@ class User extends Authenticatable
         'nama',
         'email',
         'password',
+        'no_hp',
         'jabatan',
         'alamat',
         'role_id',
@@ -64,6 +65,14 @@ class User extends Authenticatable
     /**
      * Relationship with Jabatan
      */
+    public function jabatan()
+    {
+        return $this->belongsTo(Jabatan::class, 'jabatan_id');
+    }
+
+    /**
+     * Relationship with Jabatan (alias for backward compatibility)
+     */
     public function jabatanRelation()
     {
         return $this->belongsTo(Jabatan::class, 'jabatan_id');
@@ -75,5 +84,29 @@ class User extends Authenticatable
     public function lokasiPenempatan()
     {
         return $this->belongsTo(LokasiPenempatan::class, 'lokasi_id');
+    }
+
+    /**
+     * Relationship with Lokasi Penempatan (alias for backward compatibility)
+     */
+    public function lokasi()
+    {
+        return $this->belongsTo(LokasiPenempatan::class, 'lokasi_id');
+    }
+
+    /**
+     * Relationship with Absensi
+     */
+    public function absensi()
+    {
+        return $this->hasMany(Absensi::class, 'user_id');
+    }
+
+    /**
+     * Relationship with Izin
+     */
+    public function izin()
+    {
+        return $this->hasMany(Izin::class, 'user_id');
     }
 }

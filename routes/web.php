@@ -7,8 +7,13 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AktivasiController;
 use App\Http\Controllers\Admin\LokasiPenempatanController;
 use App\Http\Controllers\Admin\JabatanController;
+use App\Http\Controllers\Admin\KaryawanController;
+use App\Http\Controllers\Admin\AbsensiAdminController;
+use App\Http\Controllers\Admin\IzinAdminController;
+use App\Http\Controllers\Karyawan\IzinController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AbsensiController;
 
 // Home route - requires authentication
 Route::get('/', HomeController::class)->middleware('auth')->name('home');
@@ -54,16 +59,30 @@ Route::middleware(['auth'])->group(function () {
         // Jabatan Routes
         Route::resource('jabatan', JabatanController::class);
 
+        // Kelola Karyawan Routes
+        Route::resource('kelola-karyawan', KaryawanController::class);
+
+        // Absensi Routes
+        Route::get('/absensi', [AbsensiAdminController::class, 'index'])->name('absensi.index');
+        Route::get('/absensi/{id}', [AbsensiAdminController::class, 'show'])->name('absensi.show');
+        Route::delete('/absensi/{id}', [AbsensiAdminController::class, 'destroy'])->name('absensi.destroy');
+        Route::get('/absensi-export', [AbsensiAdminController::class, 'export'])->name('absensi.export');
+
+        // Izin Routes
+        Route::get('/izin', [IzinAdminController::class, 'index'])->name('izin.index');
+        Route::get('/izin/{id}', [IzinAdminController::class, 'show'])->name('izin.show');
+        Route::patch('/izin/{id}/approve', [IzinAdminController::class, 'approve'])->name('izin.approve');
+        Route::patch('/izin/{id}/reject', [IzinAdminController::class, 'reject'])->name('izin.reject');
+        Route::delete('/izin/{id}', [IzinAdminController::class, 'destroy'])->name('izin.destroy');
+        Route::get('/izin/{id}/download', [IzinAdminController::class, 'downloadDocument'])->name('izin.download');
+        Route::get('/izin-export', [IzinAdminController::class, 'export'])->name('izin.export');
+        Route::patch('/izin/bulk-approve', [IzinAdminController::class, 'bulkApprove'])->name('izin.bulk-approve');
+        Route::patch('/izin/bulk-reject', [IzinAdminController::class, 'bulkReject'])->name('izin.bulk-reject');
+
         // Placeholder routes - akan dibuat nanti
         Route::get('/karyawan', function () {
             return view('admin.karyawan.index');
         })->name('karyawan.index');
-        Route::get('/absensi', function () {
-            return view('admin.absensi.index');
-        })->name('absensi.index');
-        Route::get('/izin', function () {
-            return view('admin.izin.index');
-        })->name('izin.index');
         Route::get('/lokasi', function () {
             return view('admin.lokasi.index');
         })->name('lokasi.index');
@@ -86,8 +105,45 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/riwayat', function () {
             return view('karyawan.riwayat.index');
         })->name('riwayat.index');
-        Route::get('/izin', function () {
-            return view('karyawan.izin.index');
-        })->name('izin.index');
+
+        // Izin Routes for Karyawan
+        Route::get('/izin', [IzinController::class, 'index'])->name('izin.index');
+        Route::get('/izin/create', [IzinController::class, 'create'])->name('izin.create');
+        Route::post('/izin', [IzinController::class, 'store'])->name('izin.store');
+        Route::get('/izin/{id}', [IzinController::class, 'show'])->name('izin.show');
+        Route::delete('/izin/{id}', [IzinController::class, 'destroy'])->name('izin.destroy');
+        Route::get('/izin/{id}/download', [IzinController::class, 'downloadDocument'])->name('izin.download');
+    });
+
+    // Absensi Routes (accessible by all authenticated users)
+    Route::prefix('absensi')->name('absensi.')->group(function () {
+        Route::post('/check-location', [AbsensiController::class, 'checkLocation'])->name('check-location');
+        Route::post('/clock-in', [AbsensiController::class, 'clockIn'])->name('clock-in');
+        Route::post('/clock-out', [AbsensiController::class, 'clockOut'])->name('clock-out');
+        Route::get('/status', [AbsensiController::class, 'getTodayStatus'])->name('status');
+        Route::get('/history', [AbsensiController::class, 'getHistory'])->name('history');
+    });
+
+    // Debug routes
+    Route::get('/debug-location', [AbsensiController::class, 'debugLocation']);
+    Route::post('/debug-location', [AbsensiController::class, 'debugLocation']);
+
+    // Test routes for debugging
+    Route::get('/test-absensi', function () {
+        return response()->json([
+            'status' => 'OK',
+            'user' => Auth::user()->nama,
+            'timestamp' => now(),
+            'csrf_token' => csrf_token()
+        ]);
+    });
+
+    Route::post('/test-absensi-post', function () {
+        return response()->json([
+            'status' => 'POST OK',
+            'user' => Auth::user()->nama,
+            'request_data' => request()->all(),
+            'timestamp' => now()
+        ]);
     });
 });

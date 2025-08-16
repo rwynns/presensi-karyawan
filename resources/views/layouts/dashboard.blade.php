@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title') - Presensi Karyawan</title>
+    <title>Presensi Karyawan - @yield('title')</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,6 +17,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.2/dist/alpine.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Styles -->
     @vite('resources/css/app.css')
@@ -26,11 +27,11 @@
 </head>
 
 <body class="font-sans antialiased">
-    <div class="flex h-screen bg-gray-50">
+    <div class="flex min-h-screen bg-gray-50">
         @include('partials.sidebar')
 
         <!-- Main content -->
-        <div class="flex flex-col flex-1 w-0 overflow-hidden mx-4">
+        <div class="flex flex-col flex-1 w-0 mx-4">
             <!-- Mobile Header -->
             <div class="md:hidden pl-1 pt-1 sm:pl-3 sm:pt-3 flex items-center justify-between shadow">
                 <button

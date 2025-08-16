@@ -13,17 +13,17 @@ class Absensi extends Model
 
     protected $fillable = [
         'user_id',
+        'lokasi_penempatan_id',
         'tanggal',
         'jam_masuk',
         'jam_keluar',
-        'lokasi_masuk',
-        'lokasi_keluar',
         'latitude_masuk',
         'longitude_masuk',
         'latitude_keluar',
         'longitude_keluar',
-        'foto_masuk',
-        'foto_keluar',
+        'jarak_masuk',
+        'jarak_keluar',
+        'status',
         'keterangan'
     ];
 
@@ -39,5 +39,13 @@ class Absensi extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Relationship with LokasiPenempatan
+     */
+    public function lokasiPenempatan()
+    {
+        return $this->belongsTo(LokasiPenempatan::class);
     }
 }

@@ -115,88 +115,21 @@
                     </div>
                 </div>
 
-                <!-- Map Provider Status -->
-                <div class="mt-8">
-                    @include('partials.map-provider-status')
-                </div>
-
                 <!-- Recent Activity & Quick Actions -->
-                <div class="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
-                    <!-- Recent Activity -->
-                    <div class="bg-white shadow rounded-lg">
-                        <div class="px-6 py-4 border-b border-gray-200">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900">Aktivitas Presensi Terbaru</h3>
-                        </div>
-                        <div class="px-6 py-4">
-                            @if (isset($recentActivity) && $recentActivity->count() > 0)
-                                <div class="flow-root">
-                                    <ul class="-my-5 divide-y divide-gray-200">
-                                        @foreach ($recentActivity as $activity)
-                                            <li class="py-4">
-                                                <div class="flex items-center space-x-4">
-                                                    <div class="flex-shrink-0">
-                                                        <div
-                                                            class="h-8 w-8 rounded-full bg-gray-400 flex items-center justify-center">
-                                                            <span class="text-sm font-medium text-white uppercase">
-                                                                {{ substr($activity->user->nama ?? 'U', 0, 1) }}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex-1 min-w-0">
-                                                        <p class="text-sm font-medium text-gray-900 truncate">
-                                                            {{ $activity->user->nama ?? 'Unknown' }}
-                                                        </p>
-                                                        <p class="text-sm text-gray-500">
-                                                            {{ $activity->type }} -
-                                                            {{ $activity->created_at->format('H:i') }}
-                                                        </p>
-                                                    </div>
-                                                    <div class="flex-shrink-0">
-                                                        @if ($activity->type == 'masuk')
-                                                            <span
-                                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                                Masuk
-                                                            </span>
-                                                        @elseif($activity->type == 'keluar')
-                                                            <span
-                                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                                Keluar
-                                                            </span>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @else
-                                <div class="text-center py-8">
-                                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                    <h3 class="mt-2 text-sm font-medium text-gray-900">Belum ada aktivitas</h3>
-                                    <p class="mt-1 text-sm text-gray-500">Aktivitas presensi akan muncul di sini.</p>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-
+                <div class="mt-8">
                     <!-- Quick Actions -->
-                    <div class="bg-white shadow rounded-lg">
+                    <div class="bg-white shadow
+                    rounded-lg">
                         <div class="px-6 py-4 border-b border-gray-200">
                             <h3 class="text-lg leading-6 font-medium text-gray-900">Menu Cepat</h3>
                         </div>
                         <div class="px-6 py-4">
                             <div class="grid grid-cols-2 gap-4">
-                                <a href="{{ route('admin.karyawan.index') }}"
+                                <a href="{{ route('admin.kelola-karyawan.index') }}"
                                     class="group relative bg-white p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500 rounded-lg border border-gray-200 hover:border-gray-300">
                                     <div>
-                                        <span
-                                            class="rounded-lg inline-flex p-3 bg-blue-50 text-blue-700 ring-4 ring-white">
-                                            <svg class="h-6 w-6" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
+                                        <span class="rounded-lg inline-flex p-3 bg-blue-50 text-blue-700 ring-4 ring-white">
+                                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
                                                 </path>
@@ -222,28 +155,25 @@
                                     </span>
                                 </a>
 
-                                <a href="{{ route('admin.lokasi-penempatan.index') }}"
+                                <a href="{{ route('admin.aktivasi.index') }}"
                                     class="group relative bg-white p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500 rounded-lg border border-gray-200 hover:border-gray-300">
                                     <div>
                                         <span
                                             class="rounded-lg inline-flex p-3 bg-indigo-50 text-indigo-700 ring-4 ring-white">
-                                            <svg class="h-6 w-6" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
+                                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
                                                 </path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                             </svg>
                                         </span>
                                     </div>
                                     <div class="mt-8">
                                         <h3 class="text-lg font-medium">
                                             <span class="absolute inset-0" aria-hidden="true"></span>
-                                            Lokasi Penempatan
+                                            Aktivasi Akun
                                         </h3>
                                         <p class="mt-2 text-sm text-gray-500">
-                                            Kelola lokasi dengan Google Maps/OSM
+                                            Aktivasi dan kelola status akun karyawan
                                         </p>
                                     </div>
                                     <span
@@ -272,10 +202,10 @@
                                     <div class="mt-8">
                                         <h3 class="text-lg font-medium">
                                             <span class="absolute inset-0" aria-hidden="true"></span>
-                                            Data Absensi
+                                            Kelola Data Absensi
                                         </h3>
                                         <p class="mt-2 text-sm text-gray-500">
-                                            Lihat dan kelola data absensi harian
+                                            Lihat dan kelola data absensi karyawan
                                         </p>
                                     </div>
                                     <span
@@ -288,7 +218,7 @@
                                     </span>
                                 </a>
 
-                                <a href="{{ route('admin.laporan.index') }}"
+                                <a href="{{ route('admin.izin.index') }}"
                                     class="group relative bg-white p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500 rounded-lg border border-gray-200 hover:border-gray-300">
                                     <div>
                                         <span
@@ -296,7 +226,7 @@
                                             <svg class="h-6 w-6" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                                                 </path>
                                             </svg>
                                         </span>
@@ -304,44 +234,10 @@
                                     <div class="mt-8">
                                         <h3 class="text-lg font-medium">
                                             <span class="absolute inset-0" aria-hidden="true"></span>
-                                            Laporan
+                                            Kelola Izin
                                         </h3>
                                         <p class="mt-2 text-sm text-gray-500">
-                                            Generate laporan kehadiran bulanan
-                                        </p>
-                                    </div>
-                                    <span
-                                        class="pointer-events-none absolute top-6 right-6 text-gray-300 group-hover:text-gray-400">
-                                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                                            <path
-                                                d="m11.293 17.293 1.414 1.414L19.414 12l-6.707-6.707-1.414 1.414L15.586 11H6v2h9.586l-4.293 4.293z">
-                                            </path>
-                                        </svg>
-                                    </span>
-                                </a>
-
-                                <a href="{{ route('admin.settings.index') }}"
-                                    class="group relative bg-white p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500 rounded-lg border border-gray-200 hover:border-gray-300">
-                                    <div>
-                                        <span
-                                            class="rounded-lg inline-flex p-3 bg-purple-50 text-purple-700 ring-4 ring-white">
-                                            <svg class="h-6 w-6" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
-                                                </path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                            </svg>
-                                        </span>
-                                    </div>
-                                    <div class="mt-8">
-                                        <h3 class="text-lg font-medium">
-                                            <span class="absolute inset-0" aria-hidden="true"></span>
-                                            Pengaturan
-                                        </h3>
-                                        <p class="mt-2 text-sm text-gray-500">
-                                            Konfigurasi sistem dan lokasi
+                                            Kelola dan validasi pengajuan izin karyawan
                                         </p>
                                     </div>
                                     <span

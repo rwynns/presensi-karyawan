@@ -29,6 +29,32 @@
             <!-- Right side - Menu items -->
             <div class="hidden md:flex items-center space-x-2">
                 @auth
+                    @if (Auth::user()->role_id == 2)
+                        <!-- Beranda Menu for Karyawan -->
+                        <a href="/"
+                            class="group inline-flex items-center px-4 py-2 text-sm font-medium rounded-xl text-white/90 hover:text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all duration-200 ease-in-out">
+                            <svg class="w-4 h-4 mr-2 group-hover:scale-110 transition-transform duration-200" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                                </path>
+                            </svg>
+                            <span class="font-poppins">Beranda</span>
+                        </a>
+
+                        <!-- Riwayat Izin Menu for Karyawan -->
+                        <a href="{{ route('karyawan.izin.index') }}"
+                            class="group inline-flex items-center px-4 py-2 text-sm font-medium rounded-xl text-white/90 hover:text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all duration-200 ease-in-out">
+                            <svg class="w-4 h-4 mr-2 group-hover:scale-110 transition-transform duration-200" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                </path>
+                            </svg>
+                            <span class="font-poppins">Riwayat Izin</span>
+                        </a>
+                    @endif
+
                     <!-- Profile Menu -->
                     <a href="{{ route('profile.index') }}"
                         class="group inline-flex items-center px-4 py-2 text-sm font-medium rounded-xl text-white/90 hover:text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all duration-200 ease-in-out">
@@ -126,6 +152,32 @@
 
                 <!-- Mobile Menu Items -->
                 <div class="space-y-2">
+                    @if (Auth::user()->role_id == 2)
+                        <!-- Beranda Menu for Mobile -->
+                        <a href="/"
+                            class="group flex items-center px-4 py-3 text-base font-medium text-white/90 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 font-poppins">
+                            <svg class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-200"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                                </path>
+                            </svg>
+                            Beranda
+                        </a>
+
+                        <!-- Riwayat Izin Menu for Mobile -->
+                        <a href="{{ route('karyawan.izin.index') }}"
+                            class="group flex items-center px-4 py-3 text-base font-medium text-white/90 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 font-poppins">
+                            <svg class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-200"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                </path>
+                            </svg>
+                            Riwayat Izin
+                        </a>
+                    @endif
+
                     <a href="{{ route('profile.index') }}"
                         class="group flex items-center px-4 py-3 text-base font-medium text-white/90 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 font-poppins">
                         <svg class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-200" fill="none"
@@ -139,8 +191,8 @@
                     @if (Auth::user()->role_id == 2)
                         <a href="{{ route('karyawan.riwayat.index') }}"
                             class="group flex items-center px-4 py-3 text-base font-medium text-white/90 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 font-poppins">
-                            <svg class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-200" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-200"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>

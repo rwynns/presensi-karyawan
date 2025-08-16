@@ -19,7 +19,9 @@ class LokasiPenempatanSeeder extends Seeder
                 'alamat_lengkap' => 'Dukuhan, Doplang, Jati, Blora Regency, Central Java 58384',
                 'latitude' => -7.18290000,
                 'longitude' => 111.28796000,
-                'radius' => 200,
+                'radius' => 600,
+                'jam_masuk' => '08:00:00',
+                'jam_pulang' => '16:00:00',
                 'description' => 'Stasiun kereta api yang terletak di wilayah Doplang, Jati, Kabupaten Blora'
             ],
             [
@@ -27,7 +29,9 @@ class LokasiPenempatanSeeder extends Seeder
                 'alamat_lengkap' => 'Wado Wetan, Wado, Kedungtuban, Blora Regency, Central Java 58381',
                 'latitude' => -7.196346812562705,
                 'longitude' => 111.50045021078911,
-                'radius' => 200,
+                'radius' => 600,
+                'jam_masuk' => '08:00:00',
+                'jam_pulang' => '16:00:00',
                 'description' => 'Stasiun kereta api yang terletak di wilayah Wado, Kedungtuban, Kabupaten Blora'
             ],
             [
@@ -35,7 +39,9 @@ class LokasiPenempatanSeeder extends Seeder
                 'alamat_lengkap' => 'Wulung, Randublatung, Blora Regency, Central Java 58382',
                 'latitude' => -7.1923046694479185,
                 'longitude' => 111.39802865889547,
-                'radius' => 200,
+                'radius' => 600,
+                'jam_masuk' => '08:00:00',
+                'jam_pulang' => '16:00:00',
                 'description' => 'Stasiun kereta api yang terletak di wilayah Randublatung, Kabupaten Blora'
             ],
             [
@@ -43,7 +49,9 @@ class LokasiPenempatanSeeder extends Seeder
                 'alamat_lengkap' => 'Wates, Kradenan, Grobogan Regency, Central Java 58182',
                 'latitude' => -7.150215037729748,
                 'longitude' => 111.14688608616743,
-                'radius' => 200,
+                'radius' => 600,
+                'jam_masuk' => '08:00:00',
+                'jam_pulang' => '16:00:00',
                 'description' => 'Stasiun kereta api yang terletak di wilayah Kradenan, Kabupaten Grobogan'
             ],
             [
@@ -51,7 +59,9 @@ class LokasiPenempatanSeeder extends Seeder
                 'alamat_lengkap' => 'Jl. Raya Tahunan No.14, Brumbung, Tahunan, Kecamatan Gabus, Kabupaten Grobogan, Jawa Tengah 58183',
                 'latitude' => -7.174107942875657,
                 'longitude' => 111.22276778834343,
-                'radius' => 200,
+                'radius' => 600,
+                'jam_masuk' => '08:00:00',
+                'jam_pulang' => '16:00:00',
                 'description' => 'Stasiun kereta api yang terletak di wilayah Gabus, Kabupaten Grobogan'
             ]
         ];

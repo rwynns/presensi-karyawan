@@ -18,6 +18,8 @@ return new class extends Migration
             $table->decimal('latitude', 10, 8)->nullable(); // Koordinat GPS latitude
             $table->decimal('longitude', 11, 8)->nullable(); // Koordinat GPS longitude
             $table->integer('radius')->default(50); // Radius dalam meter untuk validasi presensi
+            $table->time('jam_masuk');
+            $table->time('jam_pulang');
             $table->text('description')->nullable(); // Deskripsi tambahan lokasi
             $table->timestamps();
         });

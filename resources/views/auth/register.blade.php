@@ -54,8 +54,22 @@
                         </div>
                     </div>
 
-                    <!-- Row 2: Password & Konfirmasi Password -->
+                    <!-- Row 2: No HP & Password -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- No HP -->
+                        <div>
+                            <label for="no_hp" class="block text-sm font-medium font-inter text-secondary-800 mb-1">Nomor
+                                HP</label>
+                            <div class="relative">
+                                <input id="no_hp" type="tel" name="no_hp" required autocomplete="tel"
+                                    placeholder="Contoh: 081234567890" value="{{ old('no_hp') }}"
+                                    class="block w-full rounded-lg bg-secondary-50 border border-secondary-200 px-3 py-2.5 text-sm font-inter text-secondary-900 placeholder:text-secondary-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:bg-white hover:border-secondary-300 @error('no_hp') border-red-500 focus:ring-red-500 focus:border-red-500 @enderror" />
+                            </div>
+                            @error('no_hp')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                         <!-- Password -->
                         <div>
                             <label for="password"
@@ -69,21 +83,21 @@
                                 <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
+                    </div>
 
-                        <!-- Konfirmasi Password -->
-                        <div>
-                            <label for="password_confirmation"
-                                class="block text-sm font-medium font-inter text-secondary-800 mb-1">Konfirmasi
-                                Password</label>
-                            <div class="relative">
-                                <input id="password_confirmation" type="password" name="password_confirmation" required
-                                    autocomplete="new-password" placeholder="Ulangi password"
-                                    class="block w-full rounded-lg bg-secondary-50 border border-secondary-200 px-3 py-2.5 text-sm font-inter text-secondary-900 placeholder:text-secondary-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:bg-white hover:border-secondary-300" />
-                            </div>
+                    <!-- Row 3: Konfirmasi Password (Full Width) -->
+                    <div>
+                        <label for="password_confirmation"
+                            class="block text-sm font-medium font-inter text-secondary-800 mb-1">Konfirmasi
+                            Password</label>
+                        <div class="relative">
+                            <input id="password_confirmation" type="password" name="password_confirmation" required
+                                autocomplete="new-password" placeholder="Ulangi password"
+                                class="block w-full rounded-lg bg-secondary-50 border border-secondary-200 px-3 py-2.5 text-sm font-inter text-secondary-900 placeholder:text-secondary-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:bg-white hover:border-secondary-300" />
                         </div>
                     </div>
 
-                    <!-- Row 3: Jabatan & Lokasi -->
+                    <!-- Row 4: Jabatan & Lokasi -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- Jabatan -->
                         <div>
@@ -129,7 +143,7 @@
                         </div>
                     </div>
 
-                    <!-- Row 4: Alamat (Full Width) -->
+                    <!-- Row 5: Alamat (Full Width) -->
                     <div>
                         <label for="alamat" class="block text-sm font-medium font-inter text-secondary-800 mb-1">Alamat
                             Lengkap</label>

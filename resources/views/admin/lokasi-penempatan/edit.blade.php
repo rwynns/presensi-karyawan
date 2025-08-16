@@ -168,6 +168,57 @@
                             @enderror
                         </div>
 
+                        <!-- Jam Kerja -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="jam_masuk" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Jam Masuk <span class="text-red-500">*</span>
+                                </label>
+                                <input type="time" id="jam_masuk" name="jam_masuk"
+                                    value="{{ old('jam_masuk', $lokasiPenempatan->jam_masuk ? $lokasiPenempatan->jam_masuk->format('H:i') : '08:00') }}"
+                                    class="block w-full px-3 py-2 border rounded-md shadow-sm transition-all duration-150 ease-in-out focus:outline-none focus:ring-2 {{ $errors->has('jam_masuk') ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500' }}"
+                                    required>
+                                @error('jam_masuk')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div>
+                                <label for="jam_pulang" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Jam Pulang <span class="text-red-500">*</span>
+                                </label>
+                                <input type="time" id="jam_pulang" name="jam_pulang"
+                                    value="{{ old('jam_pulang', $lokasiPenempatan->jam_pulang ? $lokasiPenempatan->jam_pulang->format('H:i') : '17:00') }}"
+                                    class="block w-full px-3 py-2 border rounded-md shadow-sm transition-all duration-150 ease-in-out focus:outline-none focus:ring-2 {{ $errors->has('jam_pulang') ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500' }}"
+                                    required>
+                                @error('jam_pulang')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <!-- Toleransi Keterlambatan -->
+                        <div>
+                            <label for="toleransi_keterlambatan" class="block text-sm font-medium text-gray-700 mb-2">
+                                Toleransi Keterlambatan <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <input type="number" id="toleransi_keterlambatan" name="toleransi_keterlambatan"
+                                    min="0" max="120"
+                                    value="{{ old('toleransi_keterlambatan', $lokasiPenempatan->toleransi_keterlambatan ?? 15) }}"
+                                    class="block w-full px-3 py-2 pr-16 border rounded-md shadow-sm placeholder-gray-400 transition-all duration-150 ease-in-out focus:outline-none focus:ring-2 {{ $errors->has('toleransi_keterlambatan') ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500' }}"
+                                    required>
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 text-sm">menit</span>
+                                </div>
+                            </div>
+                            <p class="mt-1 text-xs text-gray-500">Batas waktu keterlambatan yang masih bisa ditoleransi
+                                (0-120 menit)
+                            </p>
+                            @error('toleransi_keterlambatan')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                         <!-- Description -->
                         <div>
                             <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
@@ -281,6 +332,29 @@
                         return false;
                     }
 
+                    // Validate working hours
+                    const jamMasuk = document.getElementById('jam_masuk').value;
+                    const jamPulang = document.getElementById('jam_pulang').value;
+
+                    if (!jamMasuk || !jamPulang) {
+                        e.preventDefault();
+                        alert('Jam masuk dan jam pulang harus diisi.');
+                        if (!jamMasuk) document.getElementById('jam_masuk').focus();
+                        else document.getElementById('jam_pulang').focus();
+                        return false;
+                    }
+
+                    // Convert time to minutes for comparison
+                    const masukMinutes = timeToMinutes(jamMasuk);
+                    const pulangMinutes = timeToMinutes(jamPulang);
+
+                    if (pulangMinutes <= masukMinutes) {
+                        e.preventDefault();
+                        alert('Jam pulang harus lebih dari jam masuk.');
+                        document.getElementById('jam_pulang').focus();
+                        return false;
+                    }
+
                     // Show loading state
                     if (submitBtn) {
                         const originalText = submitBtn.innerHTML;
@@ -296,5 +370,11 @@
                 });
             }
         });
+
+        // Helper function to convert time to minutes
+        function timeToMinutes(time) {
+            const [hours, minutes] = time.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
     </script>
 @endpush

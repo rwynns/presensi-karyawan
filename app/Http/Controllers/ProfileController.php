@@ -5,40 +5,36 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Jabatan;
 use App\Models\LokasiPenempatan;
-use Illuminate\Http\Request;
+use App\Http\Requests\UpdateProfileRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
+use Illuminate\Support\Facades\Log;
 
 class ProfileController extends Controller
 {
     public function index()
     {
-        $user = Auth::user();
+        $user = User::with(['role', 'jabatanRelation', 'lokasi'])->find(Auth::id());
         $jabatan = Jabatan::all();
         $lokasi = LokasiPenempatan::all();
 
         return view('profile.index', compact('user', 'jabatan', 'lokasi'));
     }
 
-    public function update(Request $request)
+    public function update(UpdateProfileRequest $request)
     {
         $user = Auth::user();
-
-        $request->validate([
-            'nama' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
-            'jabatan_id' => ['nullable', 'exists:jabatan,id'],
-            'lokasi_id' => ['nullable', 'exists:lokasi_penempatan,id'],
-            'alamat' => ['required', 'string'],
-            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
-        ]);
 
         $updateData = [
             'nama' => $request->nama,
             'email' => $request->email,
             'alamat' => $request->alamat,
         ];
+
+        // Add no_hp if provided
+        if ($request->filled('no_hp')) {
+            $updateData['no_hp'] = $request->no_hp;
+        }
 
         // Only update jabatan_id and lokasi_id for non-admin users
         if ($user->role_id != 1) {
@@ -55,9 +51,26 @@ class ProfileController extends Controller
             $updateData['password'] = Hash::make($request->password);
         }
 
-        User::where('id', $user->id)->update($updateData);
+        try {
+            User::where('id', $user->id)->update($updateData);
 
-        return redirect()->route('profile.index')
-            ->with('success', 'Profil berhasil diperbarui.');
+            Log::info('Profile updated successfully', [
+                'user_id' => $user->id,
+                'updated_fields' => array_keys($updateData)
+            ]);
+
+            return redirect()->route('profile.index')
+                ->with('success', 'Profile berhasil diperbarui.');
+        } catch (\Exception $e) {
+            Log::error('Profile update failed', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+                'data' => $updateData
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan saat memperbarui profile.')
+                ->withInput();
+        }
     }
 }

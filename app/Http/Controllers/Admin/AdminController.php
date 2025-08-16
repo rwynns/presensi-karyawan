@@ -37,12 +37,14 @@ class AdminController extends Controller
             ->take(10)
             ->get()
             ->map(function ($absensi) {
+                $time = $absensi->jam_keluar
+                    ? $absensi->jam_keluar->format('H:i:s')
+                    : ($absensi->jam_masuk ? $absensi->jam_masuk->format('H:i:s') : '00:00:00');
+
                 return (object) [
                     'user' => $absensi->user,
                     'type' => $absensi->jam_keluar ? 'keluar' : 'masuk',
-                    'created_at' => $absensi->jam_keluar ?
-                        Carbon::parse($absensi->tanggal->format('Y-m-d') . ' ' . $absensi->jam_keluar) :
-                        Carbon::parse($absensi->tanggal->format('Y-m-d') . ' ' . $absensi->jam_masuk)
+                    'created_at' => Carbon::parse($absensi->tanggal->format('Y-m-d') . ' ' . $time),
                 ];
             });
 
