@@ -19,7 +19,6 @@ class LokasiPenempatan extends Model
         'radius',
         'jam_masuk',
         'jam_pulang',
-        'toleransi_keterlambatan',
         'description'
     ];
 
@@ -31,7 +30,7 @@ class LokasiPenempatan extends Model
     ];
 
     /**
-     * Check if current time is late based on jam_masuk and toleransi_keterlambatan
+     * Check if current time is late based on jam_masuk
      */
     public function isLate($currentTime = null)
     {
@@ -39,10 +38,10 @@ class LokasiPenempatan extends Model
             $currentTime = now()->format('H:i:s');
         }
 
-        $jamMasukWithToleransi = $this->jam_masuk->addMinutes($this->toleransi_keterlambatan);
         $currentDateTime = now()->setTimeFromTimeString($currentTime);
+        $jamMasukDateTime = now()->setTimeFromTimeString($this->jam_masuk->format('H:i:s'));
 
-        return $currentDateTime->gt($jamMasukWithToleransi);
+        return $currentDateTime->gt($jamMasukDateTime);
     }
 
     /**

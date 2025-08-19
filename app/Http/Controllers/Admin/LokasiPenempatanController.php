@@ -70,6 +70,8 @@ class LokasiPenempatanController extends Controller
                 'latitude' => 'required|numeric|between:-90,90',
                 'longitude' => 'required|numeric|between:-180,180',
                 'radius' => 'required|integer|min:10|max:1000',
+                'jam_masuk' => 'required|date_format:H:i',
+                'jam_pulang' => 'required|date_format:H:i|after:jam_masuk',
                 'description' => 'nullable|string|max:1000',
             ], [
                 'nama_lokasi.required' => 'Nama lokasi wajib diisi',
@@ -86,6 +88,11 @@ class LokasiPenempatanController extends Controller
                 'radius.integer' => 'Radius harus berupa angka bulat',
                 'radius.min' => 'Radius minimal 10 meter',
                 'radius.max' => 'Radius maksimal 1000 meter',
+                'jam_masuk.required' => 'Jam masuk wajib diisi',
+                'jam_masuk.date_format' => 'Format jam masuk tidak valid',
+                'jam_pulang.required' => 'Jam pulang wajib diisi',
+                'jam_pulang.date_format' => 'Format jam pulang tidak valid',
+                'jam_pulang.after' => 'Jam pulang harus lebih dari jam masuk',
                 'description.max' => 'Deskripsi maksimal 1000 karakter',
             ]);
 
@@ -140,6 +147,8 @@ class LokasiPenempatanController extends Controller
                 'latitude' => 'required|numeric|between:-90,90',
                 'longitude' => 'required|numeric|between:-180,180',
                 'radius' => 'required|integer|min:10|max:1000',
+                'jam_masuk' => 'required|date_format:H:i',
+                'jam_pulang' => 'required|date_format:H:i|after:jam_masuk',
                 'description' => 'nullable|string|max:1000',
             ], [
                 'nama_lokasi.required' => 'Nama lokasi wajib diisi',
@@ -156,6 +165,11 @@ class LokasiPenempatanController extends Controller
                 'radius.integer' => 'Radius harus berupa angka bulat',
                 'radius.min' => 'Radius minimal 10 meter',
                 'radius.max' => 'Radius maksimal 1000 meter',
+                'jam_masuk.required' => 'Jam masuk wajib diisi',
+                'jam_masuk.date_format' => 'Format jam masuk tidak valid',
+                'jam_pulang.required' => 'Jam pulang wajib diisi',
+                'jam_pulang.date_format' => 'Format jam pulang tidak valid',
+                'jam_pulang.after' => 'Jam pulang harus lebih dari jam masuk',
                 'description.max' => 'Deskripsi maksimal 1000 karakter',
             ]);
 

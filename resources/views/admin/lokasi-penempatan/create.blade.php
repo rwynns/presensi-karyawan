@@ -191,28 +191,6 @@
                             </div>
                         </div>
 
-                        <!-- Toleransi Keterlambatan -->
-                        <div>
-                            <label for="toleransi_keterlambatan" class="block text-sm font-medium text-gray-700 mb-2">
-                                Toleransi Keterlambatan <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <input type="number" name="toleransi_keterlambatan" id="toleransi_keterlambatan"
-                                    min="0" max="120"
-                                    class="block w-full px-3 py-2 pr-16 border rounded-md shadow-sm placeholder-gray-400 transition-all duration-150 ease-in-out focus:outline-none focus:ring-2 {{ $errors->has('toleransi_keterlambatan') ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500' }}"
-                                    value="{{ old('toleransi_keterlambatan', 15) }}" required>
-                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 text-sm">menit</span>
-                                </div>
-                            </div>
-                            <p class="mt-1 text-xs text-gray-500">Batas waktu keterlambatan yang masih bisa ditoleransi
-                                (0-120 menit)
-                            </p>
-                            @error('toleransi_keterlambatan')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
                         <!-- Deskripsi -->
                         <div>
                             <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
