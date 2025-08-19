@@ -480,56 +480,65 @@
             );
         }
 
-        // Update tombol test lokasi untuk set koordinat manual
-        document.getElementById('testLocationBtn').addEventListener('click', function() {
-            // Set location to Stasiun Doplang coordinates for testing
-            userLocation = {
-                latitude: -7.18290000,
-                longitude: 111.28796000
-            };
+        // Update tombol test lokasi untuk set koordinat manual (optional dev tools)
+        const testLocationBtn = document.getElementById('testLocationBtn');
+        if (testLocationBtn) {
+            testLocationBtn.addEventListener('click', function() {
+                // Set location to Stasiun Doplang coordinates for testing
+                userLocation = {
+                    latitude: -7.18290000,
+                    longitude: 111.28796000
+                };
 
-            showAlert('info', 'Test Lokasi',
-                'Lokasi diset ke Stasiun Doplang untuk testing.\n\nCoordinates: -7.18290000, 111.28796000');
-            updateLocationStatus('success', 'Test lokasi: Stasiun Doplang');
-        });
+                showAlert('info', 'Test Lokasi',
+                    'Lokasi diset ke Stasiun Doplang untuk testing.\n\nCoordinates: -7.18290000, 111.28796000');
+                updateLocationStatus('success', 'Test lokasi: Stasiun Doplang');
+            });
+        }
 
-        // Debug GPS Button - Real GPS location debugging
-        document.getElementById('debugGPSBtn').addEventListener('click', function() {
-            debugRealGPSLocation();
-        });
+        // Debug GPS Button - Real GPS location debugging (optional dev tools)
+        const debugGPSBtn = document.getElementById('debugGPSBtn');
+        if (debugGPSBtn) {
+            debugGPSBtn.addEventListener('click', function() {
+                debugRealGPSLocation();
+            });
+        }
 
-        // Test Connection Function
-        document.getElementById('testConnectionBtn').addEventListener('click', function() {
-            console.log('🔧 Testing connection...');
+        // Test Connection Function (optional dev tools)
+        const testConnectionBtn = document.getElementById('testConnectionBtn');
+        if (testConnectionBtn) {
+            testConnectionBtn.addEventListener('click', function() {
+                console.log('🔧 Testing connection...');
 
-            fetch('/test-absensi', {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': token
-                    }
-                })
-                .then(response => {
-                    console.log('Test response status:', response.status);
-                    console.log('Test response headers:', [...response.headers.entries()]);
+                fetch('/test-absensi', {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': token
+                        }
+                    })
+                    .then(response => {
+                        console.log('Test response status:', response.status);
+                        console.log('Test response headers:', [...response.headers.entries()]);
 
-                    const contentType = response.headers.get('content-type');
-                    if (contentType && contentType.includes('application/json')) {
-                        return response.json();
-                    } else {
-                        return response.text();
-                    }
-                })
-                .then(data => {
-                    console.log('✅ Connection test result:', data);
-                    alert('Connection test: ' + JSON.stringify(data));
-                })
-                .catch(error => {
-                    console.error('❌ Connection test error:', error);
-                    alert('Connection error: ' + error.message);
-                });
-        });
+                        const contentType = response.headers.get('content-type');
+                        if (contentType && contentType.includes('application/json')) {
+                            return response.json();
+                        } else {
+                            return response.text();
+                        }
+                    })
+                    .then(data => {
+                        console.log('✅ Connection test result:', data);
+                        alert('Connection test: ' + JSON.stringify(data));
+                    })
+                    .catch(error => {
+                        console.error('❌ Connection test error:', error);
+                        alert('Connection error: ' + error.message);
+                    });
+            });
+        }
 
         // Function untuk debug GPS real-time
         function debugRealGPSLocation() {
