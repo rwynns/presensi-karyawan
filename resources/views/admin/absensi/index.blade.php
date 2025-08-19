@@ -175,10 +175,12 @@
                                         $toleransi = $item->lokasiPenempatan?->toleransi_keterlambatan ?? 15;
 
                                         if ($jamMasukLokasi) {
-                                            $jamMasukLokasiCarbon = \Carbon\Carbon::createFromFormat(
+                                            $jamMasukLokasiTime = \Carbon\Carbon::parse($jamMasukLokasi)->format(
                                                 'H:i:s',
-                                                $jamMasukLokasi,
                                             );
+                                            $jamMasukLokasiCarbon = $item->tanggal
+                                                ->copy()
+                                                ->setTimeFromTimeString($jamMasukLokasiTime);
                                             $jamMasukLokasiToleransi = $jamMasukLokasiCarbon
                                                 ->copy()
                                                 ->addMinutes($toleransi);
@@ -217,10 +219,12 @@
                                     @php
                                         $jamPulangLokasi = $item->lokasiPenempatan?->jam_pulang;
                                         if ($jamPulangLokasi) {
-                                            $jamPulangLokasiCarbon = \Carbon\Carbon::createFromFormat(
+                                            $jamPulangLokasiTime = \Carbon\Carbon::parse($jamPulangLokasi)->format(
                                                 'H:i:s',
-                                                $jamPulangLokasi,
                                             );
+                                            $jamPulangLokasiCarbon = $item->tanggal
+                                                ->copy()
+                                                ->setTimeFromTimeString($jamPulangLokasiTime);
                                             $jamKeluarActual = $item->jam_keluar;
                                             $pulangAwal = $jamKeluarActual->lt($jamPulangLokasiCarbon);
                                         } else {
@@ -244,9 +248,9 @@
                                 {{ $item->lokasiPenempatan->nama_lokasi ?? '-' }}
                                 @if ($item->lokasiPenempatan && $item->lokasiPenempatan->jam_masuk)
                                     <div class="text-xs text-gray-500">
-                                        {{ \Carbon\Carbon::createFromFormat('H:i:s', $item->lokasiPenempatan->jam_masuk)->format('H:i') }}
+                                        {{ \Carbon\Carbon::parse($item->lokasiPenempatan->jam_masuk)->format('H:i') }}
                                         -
-                                        {{ \Carbon\Carbon::createFromFormat('H:i:s', $item->lokasiPenempatan->jam_pulang)->format('H:i') }}
+                                        {{ \Carbon\Carbon::parse($item->lokasiPenempatan->jam_pulang)->format('H:i') }}
                                     </div>
                                 @endif
                             </td>
