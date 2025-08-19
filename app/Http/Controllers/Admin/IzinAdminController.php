@@ -183,7 +183,7 @@ class IzinAdminController extends Controller
             );
         }
 
-        $filename = 'data_izin_' . date('Y-m-d_H-i-s') . '.csv';
+        $filename = 'data_izin_' . now()->timezone(config('app.timezone'))->format('Y-m-d_H-i-s') . '.csv';
 
         return response($csvContent)
             ->header('Content-Type', 'text/csv')

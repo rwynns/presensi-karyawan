@@ -105,7 +105,7 @@ class AbsensiAdminController extends Controller
             );
         }
 
-        $filename = 'data_absensi_' . date('Y-m-d_H-i-s') . '.csv';
+        $filename = 'data_absensi_' . now()->timezone(config('app.timezone'))->format('Y-m-d_H-i-s') . '.csv';
 
         return response($csvContent)
             ->header('Content-Type', 'text/csv')
@@ -117,7 +117,7 @@ class AbsensiAdminController extends Controller
      */
     public function statistics(Request $request)
     {
-        $month = $request->get('month', date('Y-m'));
+        $month = $request->get('month', now()->timezone(config('app.timezone'))->format('Y-m'));
         $startDate = Carbon::createFromFormat('Y-m', $month)->startOfMonth();
         $endDate = Carbon::createFromFormat('Y-m', $month)->endOfMonth();
 

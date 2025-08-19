@@ -365,7 +365,7 @@
                                 <div class="flex justify-between items-center p-4 bg-gray-50 rounded-xl">
                                     <span class="text-gray-600 font-inter text-sm">Nama Lengkap</span>
                                     <span
-                                        class="font-poppins font-semibold text-gray-900 text-sm">{{ $izin->user->name }}</span>
+                                        class="font-poppins font-semibold text-gray-900 text-sm">{{ $izin->user->nama }}</span>
                                 </div>
                                 <div class="flex justify-between items-center p-4 bg-gray-50 rounded-xl">
                                     <span class="text-gray-600 font-inter text-sm">Email</span>
@@ -375,7 +375,7 @@
                                 <div class="flex justify-between items-center p-4 bg-gray-50 rounded-xl">
                                     <span class="text-gray-600 font-inter text-sm">Jabatan</span>
                                     <span
-                                        class="font-poppins font-semibold text-gray-900 text-sm">{{ $izin->user->jabatan ? $izin->user->jabatan->nama_jabatan : '-' }}</span>
+                                        class="font-poppins font-semibold text-gray-900 text-sm">{{ $izin->user->jabatanRelation?->nama_jabatan ?? '-' }}</span>
                                 </div>
                             </div>
                         </div>

@@ -105,7 +105,7 @@
                                     <label class="block text-sm font-medium text-gray-700 font-poppins mb-2">Tanggal
                                         Mulai</label>
                                     <input type="date" name="tanggal_mulai" value="{{ old('tanggal_mulai') }}" required
-                                        min="{{ date('Y-m-d') }}"
+                                        min="{{ now()->timezone(config('app.timezone'))->toDateString() }}"
                                         class="w-full rounded-xl border-gray-300 focus:border-primary-500 focus:ring-primary-500 transition-colors duration-200 @error('tanggal_mulai') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror">
                                     @error('tanggal_mulai')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -115,7 +115,7 @@
                                     <label class="block text-sm font-medium text-gray-700 font-poppins mb-2">Tanggal
                                         Selesai</label>
                                     <input type="date" name="tanggal_selesai" value="{{ old('tanggal_selesai') }}"
-                                        required min="{{ date('Y-m-d') }}"
+                                        required min="{{ now()->timezone(config('app.timezone'))->toDateString() }}"
                                         class="w-full rounded-xl border-gray-300 focus:border-primary-500 focus:ring-primary-500 transition-colors duration-200 @error('tanggal_selesai') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror">
                                     @error('tanggal_selesai')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

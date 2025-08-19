@@ -40,8 +40,11 @@
                                                 </div>
                                                 <div>
                                                     <p class="text-lg font-poppins font-semibold text-gray-800">
-                                                        {{ date('d F Y') }}</p>
-                                                    <p class="text-sm font-inter text-gray-600">{{ date('l') }}</p>
+                                                        {{ now()->timezone(config('app.timezone'))->translatedFormat('d F Y') }}
+                                                    </p>
+                                                    <p class="text-sm font-inter text-gray-600">
+                                                        {{ now()->timezone(config('app.timezone'))->translatedFormat('l') }}
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
