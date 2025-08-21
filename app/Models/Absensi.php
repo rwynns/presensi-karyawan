@@ -23,6 +23,8 @@ class Absensi extends Model
         'longitude_keluar',
         'jarak_masuk',
         'jarak_keluar',
+        'foto_masuk',
+        'foto_keluar',
         'status',
         'keterangan'
     ];

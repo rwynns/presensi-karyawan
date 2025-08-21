@@ -234,6 +234,29 @@
         </div>
     </div>
 
+    <!-- Camera Capture Modal -->
+    <div id="cameraModal" class="hidden fixed inset-0 bg-black bg-opacity-70 items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-4 sm:p-6 max-w-md w-full mx-4 shadow-2xl">
+            <h3 class="text-base sm:text-lg font-poppins font-semibold text-gray-800 mb-3">Ambil Foto Bukti</h3>
+            <div class="relative aspect-[3/4] w-full bg-black rounded-xl overflow-hidden mb-3">
+                <video id="cameraVideo" autoplay playsinline class="w-full h-full object-cover"></video>
+                <canvas id="cameraCanvas" class="hidden w-full h-full"></canvas>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <button id="captureBtn"
+                    class="col-span-2 bg-primary-500 hover:bg-primary-600 text-white font-medium py-2.5 px-4 rounded-xl transition-colors">Ambil
+                    Foto</button>
+                <button id="retakeBtn"
+                    class="hidden bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2.5 px-4 rounded-xl transition-colors">Ulangi</button>
+                <button id="usePhotoBtn"
+                    class="hidden bg-green-500 hover:bg-green-600 text-white font-medium py-2.5 px-4 rounded-xl transition-colors">Gunakan
+                    Foto</button>
+                <button id="cancelCameraBtn"
+                    class="bg-red-500 hover:bg-red-600 text-white font-medium py-2.5 px-4 rounded-xl transition-colors">Batal</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let userLocation = null;
         let attendanceStatus = null;
@@ -407,7 +430,7 @@
                 return;
             }
 
-            performAttendance('clock-in');
+            openCameraFor('clock-in');
         });
 
         // Clock out event
@@ -427,7 +450,114 @@
                 return;
             }
 
-            performAttendance('clock-out');
+            openCameraFor('clock-out');
+        });
+
+        // ===== Camera flow =====
+        let mediaStream = null;
+        let capturedPhotoDataUrl = null;
+        let pendingAction = null; // 'clock-in' | 'clock-out'
+
+        const cameraModal = document.getElementById('cameraModal');
+        const cameraVideo = document.getElementById('cameraVideo');
+        const cameraCanvas = document.getElementById('cameraCanvas');
+        const captureBtn = document.getElementById('captureBtn');
+        const retakeBtn = document.getElementById('retakeBtn');
+        const usePhotoBtn = document.getElementById('usePhotoBtn');
+        const cancelCameraBtn = document.getElementById('cancelCameraBtn');
+
+        function openCameraFor(action) {
+            pendingAction = action;
+            capturedPhotoDataUrl = null;
+            cameraCanvas.classList.add('hidden');
+            cameraVideo.classList.remove('hidden');
+            captureBtn.classList.remove('hidden');
+            retakeBtn.classList.add('hidden');
+            usePhotoBtn.classList.add('hidden');
+            cameraModal.classList.remove('hidden');
+            cameraModal.classList.add('flex');
+            startCamera();
+        }
+
+        function closeCamera() {
+            stopCamera();
+            cameraModal.classList.add('hidden');
+            cameraModal.classList.remove('flex');
+        }
+
+        async function startCamera() {
+            try {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    showAlert('error', 'Kamera tidak didukung', 'Browser Anda tidak mendukung kamera.');
+                    return;
+                }
+                mediaStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'user'
+                    },
+                    audio: false
+                });
+                cameraVideo.srcObject = mediaStream;
+            } catch (e) {
+                console.error('Camera error:', e);
+                showAlert('error', 'Gagal membuka kamera', e.message || 'Periksa izin kamera di browser.');
+                closeCamera();
+            }
+        }
+
+        function stopCamera() {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(t => t.stop());
+                mediaStream = null;
+            }
+            cameraVideo.srcObject = null;
+        }
+
+        function capturePhoto() {
+            const videoWidth = cameraVideo.videoWidth;
+            const videoHeight = cameraVideo.videoHeight;
+            if (!videoWidth || !videoHeight) {
+                showAlert('error', 'Kamera belum siap', 'Tunggu beberapa detik lalu coba lagi.');
+                return;
+            }
+            cameraCanvas.width = videoWidth;
+            cameraCanvas.height = videoHeight;
+            const ctx = cameraCanvas.getContext('2d');
+            ctx.drawImage(cameraVideo, 0, 0, videoWidth, videoHeight);
+            capturedPhotoDataUrl = cameraCanvas.toDataURL('image/jpeg', 0.9);
+
+            // Toggle preview state
+            cameraVideo.classList.add('hidden');
+            cameraCanvas.classList.remove('hidden');
+            captureBtn.classList.add('hidden');
+            retakeBtn.classList.remove('hidden');
+            usePhotoBtn.classList.remove('hidden');
+        }
+
+        function retakePhoto() {
+            capturedPhotoDataUrl = null;
+            cameraCanvas.classList.add('hidden');
+            cameraVideo.classList.remove('hidden');
+            captureBtn.classList.remove('hidden');
+            retakeBtn.classList.add('hidden');
+            usePhotoBtn.classList.add('hidden');
+        }
+
+        function useCapturedPhoto() {
+            if (!capturedPhotoDataUrl) {
+                showAlert('error', 'Foto belum diambil', 'Silakan ambil foto terlebih dahulu.');
+                return;
+            }
+            const action = pendingAction;
+            closeCamera();
+            performAttendanceWithPhoto(action, capturedPhotoDataUrl);
+        }
+
+        captureBtn.addEventListener('click', capturePhoto);
+        retakeBtn.addEventListener('click', retakePhoto);
+        usePhotoBtn.addEventListener('click', useCapturedPhoto);
+        cancelCameraBtn.addEventListener('click', function() {
+            closeCamera();
         });
 
         // Tambahkan fungsi debugging GPS
@@ -649,8 +779,8 @@
             );
         }
 
-        // Perform attendance action
-        function performAttendance(action) {
+        // Perform attendance action with photo capture
+        function performAttendanceWithPhoto(action, photoDataUrl) {
             showLoading(true);
 
             // First check location validity
@@ -680,7 +810,11 @@
                                 'X-CSRF-TOKEN': token,
                                 'Content-Type': 'application/json'
                             },
-                            body: JSON.stringify(userLocation)
+                            body: JSON.stringify({
+                                latitude: userLocation.latitude,
+                                longitude: userLocation.longitude,
+                                photo: photoDataUrl
+                            })
                         });
                     } else {
                         // Location is invalid, show detailed error

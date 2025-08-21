@@ -7,6 +7,8 @@ use App\Models\LokasiPenempatan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class AbsensiController extends Controller
 {
@@ -119,7 +121,8 @@ class AbsensiController extends Controller
     {
         $request->validate([
             'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric'
+            'longitude' => 'required|numeric',
+            'photo' => 'required|string' // data URL base64 image
         ]);
 
         $user = Auth::user();
@@ -177,6 +180,9 @@ class AbsensiController extends Controller
         // Calculate actual distance for recording
         $jarak = $this->calculateDistance($userLat, $userLon, $lokasiPenempatan->latitude, $lokasiPenempatan->longitude);
 
+        // Save photo proof
+        $fotoPath = $this->saveAttendancePhoto($request->photo, 'masuk', $user->id);
+
         // Create or update absensi record
         if ($existingAbsensi) {
             $existingAbsensi->update([
@@ -184,6 +190,7 @@ class AbsensiController extends Controller
                 'latitude_masuk' => $userLat,
                 'longitude_masuk' => $userLon,
                 'jarak_masuk' => round($jarak),
+                'foto_masuk' => $fotoPath,
                 'status' => 'masuk'
             ]);
             $absensi = $existingAbsensi;
@@ -196,6 +203,7 @@ class AbsensiController extends Controller
                 'latitude_masuk' => $userLat,
                 'longitude_masuk' => $userLon,
                 'jarak_masuk' => round($jarak),
+                'foto_masuk' => $fotoPath,
                 'status' => 'masuk'
             ]);
         }
@@ -219,7 +227,8 @@ class AbsensiController extends Controller
     {
         $request->validate([
             'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric'
+            'longitude' => 'required|numeric',
+            'photo' => 'required|string' // data URL base64 image
         ]);
 
         $user = Auth::user();
@@ -277,12 +286,16 @@ class AbsensiController extends Controller
         // Calculate actual distance for recording
         $jarak = $this->calculateDistance($userLat, $userLon, $lokasiPenempatan->latitude, $lokasiPenempatan->longitude);
 
+        // Save photo proof
+        $fotoPath = $this->saveAttendancePhoto($request->photo, 'keluar', $user->id);
+
         // Update absensi record
         $absensi->update([
             'jam_keluar' => Carbon::now(),
             'latitude_keluar' => $userLat,
             'longitude_keluar' => $userLon,
             'jarak_keluar' => round($jarak),
+            'foto_keluar' => $fotoPath,
             'status' => 'keluar'
         ]);
 
@@ -297,6 +310,48 @@ class AbsensiController extends Controller
                 'tanggal' => $absensi->tanggal->format('d F Y')
             ]
         ]);
+    }
+
+    /**
+     * Save base64 data URL photo to public storage and return relative path
+     */
+    private function saveAttendancePhoto(string $dataUrl, string $type, int $userId): string
+    {
+        // Expected format: data:image/{ext};base64,{data}
+        if (!Str::startsWith($dataUrl, 'data:image/')) {
+            abort(response()->json([
+                'success' => false,
+                'message' => 'Format foto tidak valid.'
+            ], 422));
+        }
+
+        [$header, $encoded] = explode(',', $dataUrl, 2);
+        $extension = 'jpg';
+        if (Str::contains($header, 'image/png')) {
+            $extension = 'png';
+        } elseif (Str::contains($header, 'image/jpeg') || Str::contains($header, 'image/jpg')) {
+            $extension = 'jpg';
+        } elseif (Str::contains($header, 'image/webp')) {
+            $extension = 'webp';
+        }
+
+        $binary = base64_decode($encoded);
+        if ($binary === false) {
+            abort(response()->json([
+                'success' => false,
+                'message' => 'Gagal memproses data foto.'
+            ], 422));
+        }
+
+        $today = Carbon::now();
+        $directory = 'absensi/' . $today->format('Y/m');
+        $filename = 'user-' . $userId . '_' . $today->format('Ymd_His') . '_' . $type . '_' . Str::random(6) . '.' . $extension;
+        $path = $directory . '/' . $filename;
+
+        Storage::disk('public')->put($path, $binary);
+
+        // Return a public path relative to storage to be used with Storage::url()
+        return $path;
     }
 
     /**
