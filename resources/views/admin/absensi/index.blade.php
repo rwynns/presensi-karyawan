@@ -131,6 +131,12 @@
                             class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider font-inter">
                             JAM KELUAR</th>
                         <th
+                            class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider font-inter">
+                            BUKTI MASUK</th>
+                        <th
+                            class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider font-inter">
+                            BUKTI KELUAR</th>
+                        <th
                             class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider font-inter">
                             LOKASI</th>
                         <th
@@ -244,6 +250,40 @@
                                     <span class="text-gray-400 text-xs font-inter">-</span>
                                 @endif
                             </td>
+                            <td class="px-4 py-3 whitespace-nowrap text-center">
+                                @if ($item->foto_masuk)
+                                    <button
+                                        onclick="showPhoto('{{ $item->foto_masuk }}', 'Bukti Masuk - {{ $item->user->nama }} - {{ $item->tanggal->format('d F Y') }}')"
+                                        class="w-8 h-8 bg-primary-500 hover:bg-primary-600 text-white rounded-lg flex items-center justify-center transition-colors mx-auto">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                            </path>
+                                        </svg>
+                                    </button>
+                                @else
+                                    <span class="text-gray-400 text-xs font-inter">-</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap text-center">
+                                @if ($item->foto_keluar)
+                                    <button
+                                        onclick="showPhoto('{{ $item->foto_keluar }}', 'Bukti Keluar - {{ $item->user->nama }} - {{ $item->tanggal->format('d F Y') }}')"
+                                        class="w-8 h-8 bg-secondary-500 hover:bg-secondary-600 text-white rounded-lg flex items-center justify-center transition-colors mx-auto">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                            </path>
+                                        </svg>
+                                    </button>
+                                @else
+                                    <span class="text-gray-400 text-xs font-inter">-</span>
+                                @endif
+                            </td>
                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 font-inter">
                                 {{ $item->lokasiPenempatan->nama_lokasi ?? '-' }}
                                 @if ($item->lokasiPenempatan && $item->lokasiPenempatan->jam_masuk)
@@ -302,7 +342,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-4 py-8 text-center text-gray-500">
+                            <td colspan="10" class="px-4 py-8 text-center text-gray-500">
                                 <div class="flex flex-col items-center">
                                     <svg class="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -370,6 +410,31 @@
             </div>
         @endif
     </div>
+
+    <!-- Photo Modal -->
+    <div id="photoModal" class="hidden fixed inset-0 bg-black bg-opacity-75 items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-4 max-w-2xl w-full shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <h3 id="photoModalTitle" class="text-lg font-poppins font-semibold text-gray-800"></h3>
+                <button onclick="closePhotoModal()" class="text-gray-500 hover:text-gray-700 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+            <div class="relative">
+                <img id="photoModalImage" src="" alt="Bukti Kehadiran"
+                    class="w-full h-auto rounded-lg shadow-lg" />
+            </div>
+            <div class="mt-4 flex justify-end">
+                <button onclick="closePhotoModal()"
+                    class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -431,5 +496,34 @@
                 }
             });
         }
+
+        // Photo modal functions
+        function showPhoto(photoPath, title) {
+            const modal = document.getElementById('photoModal');
+            const image = document.getElementById('photoModalImage');
+            const modalTitle = document.getElementById('photoModalTitle');
+
+            // Construct the full URL for the photo
+            const photoUrl = `/storage/${photoPath}`;
+
+            image.src = photoUrl;
+            modalTitle.textContent = title;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closePhotoModal() {
+            const modal = document.getElementById('photoModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('photoModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePhotoModal();
+            }
+        });
     </script>
 @endpush

@@ -125,6 +125,32 @@
                                             </div>
                                         </div>
                                     @endif
+                                    @if ($absensi->foto_masuk)
+                                        <div>
+                                            <span class="text-sm text-gray-500">Bukti Foto:</span>
+                                            <div class="mt-2">
+                                                <button
+                                                    onclick="showPhoto('{{ $absensi->foto_masuk }}', 'Bukti Masuk - {{ $absensi->user->nama }} - {{ $absensi->tanggal->format('d F Y') }}')"
+                                                    class="inline-flex items-center px-3 py-2 bg-primary-500 hover:bg-primary-600 text-white text-sm rounded-lg transition-colors">
+                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                                        </path>
+                                                    </svg>
+                                                    Lihat Foto
+                                                </button>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div>
+                                            <span class="text-sm text-gray-500">Bukti Foto:</span>
+                                            <div class="text-sm text-gray-400 mt-1">Tidak ada foto</div>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
 
@@ -165,6 +191,32 @@
                                             <div class="text-sm font-medium text-gray-900">
                                                 {{ number_format($absensi->jarak_keluar) }} meter
                                             </div>
+                                        </div>
+                                    @endif
+                                    @if ($absensi->foto_keluar)
+                                        <div>
+                                            <span class="text-sm text-gray-500">Bukti Foto:</span>
+                                            <div class="mt-2">
+                                                <button
+                                                    onclick="showPhoto('{{ $absensi->foto_keluar }}', 'Bukti Keluar - {{ $absensi->user->nama }} - {{ $absensi->tanggal->format('d F Y') }}')"
+                                                    class="inline-flex items-center px-3 py-2 bg-secondary-500 hover:bg-secondary-600 text-white text-sm rounded-lg transition-colors">
+                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                                        </path>
+                                                    </svg>
+                                                    Lihat Foto
+                                                </button>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div>
+                                            <span class="text-sm text-gray-500">Bukti Foto:</span>
+                                            <div class="text-sm text-gray-400 mt-1">Tidak ada foto</div>
                                         </div>
                                     @endif
                                 </div>
@@ -293,6 +345,31 @@
         </div>
     </div>
 
+    <!-- Photo Modal -->
+    <div id="photoModal" class="hidden fixed inset-0 bg-black bg-opacity-75 items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-4 max-w-2xl w-full shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <h3 id="photoModalTitle" class="text-lg font-poppins font-semibold text-gray-800"></h3>
+                <button onclick="closePhotoModal()" class="text-gray-500 hover:text-gray-700 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+            <div class="relative">
+                <img id="photoModalImage" src="" alt="Bukti Kehadiran"
+                    class="w-full h-auto rounded-lg shadow-lg" />
+            </div>
+            <div class="mt-4 flex justify-end">
+                <button onclick="closePhotoModal()"
+                    class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let deleteId = null;
 
@@ -335,6 +412,35 @@
         document.getElementById('deleteModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeDeleteModal();
+            }
+        });
+
+        // Photo modal functions
+        function showPhoto(photoPath, title) {
+            const modal = document.getElementById('photoModal');
+            const image = document.getElementById('photoModalImage');
+            const modalTitle = document.getElementById('photoModalTitle');
+
+            // Construct the full URL for the photo
+            const photoUrl = `/storage/${photoPath}`;
+
+            image.src = photoUrl;
+            modalTitle.textContent = title;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closePhotoModal() {
+            const modal = document.getElementById('photoModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Close photo modal when clicking outside
+        document.getElementById('photoModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePhotoModal();
             }
         });
     </script>

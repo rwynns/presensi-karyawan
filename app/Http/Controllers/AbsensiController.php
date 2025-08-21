@@ -489,6 +489,8 @@ class AbsensiController extends Controller
                 'lokasi' => $absensi->lokasiPenempatan ? $absensi->lokasiPenempatan->nama_lokasi : null,
                 'jarak_masuk' => $absensi->jarak_masuk,
                 'jarak_keluar' => $absensi->jarak_keluar,
+                'foto_masuk' => $absensi->foto_masuk,
+                'foto_keluar' => $absensi->foto_keluar,
             ];
         })->values();
 

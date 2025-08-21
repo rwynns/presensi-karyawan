@@ -235,24 +235,24 @@
     </div>
 
     <!-- Camera Capture Modal -->
-    <div id="cameraModal" class="hidden fixed inset-0 bg-black bg-opacity-70 items-center justify-center z-50">
-        <div class="bg-white rounded-2xl p-4 sm:p-6 max-w-md w-full mx-4 shadow-2xl">
-            <h3 class="text-base sm:text-lg font-poppins font-semibold text-gray-800 mb-3">Ambil Foto Bukti</h3>
-            <div class="relative aspect-[3/4] w-full bg-black rounded-xl overflow-hidden mb-3">
+    <div id="cameraModal" class="hidden fixed inset-0 bg-black bg-opacity-70 items-center justify-center z-50 p-2">
+        <div class="bg-white rounded-2xl p-3 sm:p-4 max-w-sm w-full shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 class="text-sm sm:text-base font-poppins font-semibold text-gray-800 mb-2 sm:mb-3">Ambil Foto Bukti</h3>
+            <div class="relative aspect-[4/3] w-full bg-black rounded-xl overflow-hidden mb-2 sm:mb-3">
                 <video id="cameraVideo" autoplay playsinline class="w-full h-full object-cover"></video>
                 <canvas id="cameraCanvas" class="hidden w-full h-full"></canvas>
             </div>
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-2 gap-2 sm:gap-3">
                 <button id="captureBtn"
-                    class="col-span-2 bg-primary-500 hover:bg-primary-600 text-white font-medium py-2.5 px-4 rounded-xl transition-colors">Ambil
+                    class="col-span-2 bg-primary-500 hover:bg-primary-600 text-white font-medium py-2 px-3 sm:py-2.5 sm:px-4 rounded-xl transition-colors text-sm">Ambil
                     Foto</button>
                 <button id="retakeBtn"
-                    class="hidden bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2.5 px-4 rounded-xl transition-colors">Ulangi</button>
+                    class="hidden bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-3 sm:py-2.5 sm:px-4 rounded-xl transition-colors text-sm">Ulangi</button>
                 <button id="usePhotoBtn"
-                    class="hidden bg-green-500 hover:bg-green-600 text-white font-medium py-2.5 px-4 rounded-xl transition-colors">Gunakan
+                    class="hidden bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-3 sm:py-2.5 sm:px-4 rounded-xl transition-colors text-sm">Gunakan
                     Foto</button>
                 <button id="cancelCameraBtn"
-                    class="bg-red-500 hover:bg-red-600 text-white font-medium py-2.5 px-4 rounded-xl transition-colors">Batal</button>
+                    class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-3 sm:py-2.5 sm:px-4 rounded-xl transition-colors text-sm">Batal</button>
             </div>
         </div>
     </div>
