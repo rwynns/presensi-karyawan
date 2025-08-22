@@ -487,6 +487,8 @@ class AbsensiController extends Controller
                 'jam_keluar' => $absensi->jam_keluar ? $absensi->jam_keluar->format('H:i:s') : null,
                 'status' => $absensi->status,
                 'lokasi' => $absensi->lokasiPenempatan ? $absensi->lokasiPenempatan->nama_lokasi : null,
+                'lokasi_jam_masuk' => $absensi->lokasiPenempatan ? $absensi->lokasiPenempatan->jam_masuk : null,
+                'is_late' => $absensi->isLate(),
                 'jarak_masuk' => $absensi->jarak_masuk,
                 'jarak_keluar' => $absensi->jarak_keluar,
                 'foto_masuk' => $absensi->foto_masuk,

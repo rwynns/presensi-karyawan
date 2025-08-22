@@ -178,23 +178,18 @@
                                         {{ $item->jam_masuk->format('H:i:s') }}</div>
                                     @php
                                         $jamMasukLokasi = $item->lokasiPenempatan?->jam_masuk;
-                                        $toleransi = $item->lokasiPenempatan?->toleransi_keterlambatan ?? 15;
-
                                         if ($jamMasukLokasi) {
-                                            $jamMasukLokasiTime = \Carbon\Carbon::parse($jamMasukLokasi)->format(
-                                                'H:i:s',
-                                            );
+                                            $jamMasukLokasiTime = \Carbon\Carbon::parse($jamMasukLokasi)->format('H:i:s');
                                             $jamMasukLokasiCarbon = $item->tanggal
                                                 ->copy()
                                                 ->setTimeFromTimeString($jamMasukLokasiTime);
-                                            $jamMasukLokasiToleransi = $jamMasukLokasiCarbon
-                                                ->copy()
-                                                ->addMinutes($toleransi);
                                             $jamMasukActual = $item->jam_masuk;
 
-                                            $isTerlambat = $jamMasukActual->gt($jamMasukLokasiToleransi);
+                                            $isTerlambat = $jamMasukActual->gt($jamMasukLokasiCarbon);
                                         } else {
-                                            $isTerlambat = $item->jam_masuk->format('H:i:s') > '08:00:00';
+                                            // Default to 08:00:00 if no schedule time is set
+                                            $defaultTime = $item->tanggal->copy()->setTime(8, 0, 0);
+                                            $isTerlambat = $item->jam_masuk->gt($defaultTime);
                                         }
                                     @endphp
                                     @if ($isTerlambat)
