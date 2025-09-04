@@ -92,7 +92,25 @@
                                         <div class="text-sm font-medium text-gray-900">
                                             @if ($absensi->jam_masuk)
                                                 {{ $absensi->jam_masuk->format('H:i:s') }}
-                                                @if ($absensi->jam_masuk->format('H:i:s') > '08:00:00')
+                                                @php
+                                                    $jamMasukLokasi = $absensi->lokasiPenempatan?->jam_masuk;
+                                                    if ($jamMasukLokasi) {
+                                                        $jamMasukLokasiTime = \Carbon\Carbon::parse(
+                                                            $jamMasukLokasi,
+                                                        )->format('H:i:s');
+                                                        $jamMasukLokasiCarbon = $absensi->tanggal
+                                                            ->copy()
+                                                            ->setTimeFromTimeString($jamMasukLokasiTime);
+                                                        $jamMasukActual = $absensi->jam_masuk;
+
+                                                        $isTerlambat = $jamMasukActual->gt($jamMasukLokasiCarbon);
+                                                    } else {
+                                                        // Default to 08:00:00 if no schedule time is set
+                                                        $defaultTime = $absensi->tanggal->copy()->setTime(8, 0, 0);
+                                                        $isTerlambat = $absensi->jam_masuk->gt($defaultTime);
+                                                    }
+                                                @endphp
+                                                @if ($isTerlambat)
                                                     <span
                                                         class="ml-2 px-2 py-1 text-xs bg-red-100 text-red-800 rounded">Terlambat</span>
                                                 @else
@@ -163,7 +181,23 @@
                                         <div class="text-sm font-medium text-gray-900">
                                             @if ($absensi->jam_keluar)
                                                 {{ $absensi->jam_keluar->format('H:i:s') }}
-                                                @if ($absensi->jam_keluar->format('H:i:s') < '17:00:00')
+                                                @php
+                                                    $jamPulangLokasi = $absensi->lokasiPenempatan?->jam_pulang;
+                                                    if ($jamPulangLokasi) {
+                                                        $jamPulangLokasiTime = \Carbon\Carbon::parse(
+                                                            $jamPulangLokasi,
+                                                        )->format('H:i:s');
+                                                        $jamPulangLokasiCarbon = $absensi->tanggal
+                                                            ->copy()
+                                                            ->setTimeFromTimeString($jamPulangLokasiTime);
+                                                        $jamKeluarActual = $absensi->jam_keluar;
+                                                        $pulangAwal = $jamKeluarActual->lt($jamPulangLokasiCarbon);
+                                                    } else {
+                                                        $pulangAwal =
+                                                            $absensi->jam_keluar->format('H:i:s') < '17:00:00';
+                                                    }
+                                                @endphp
+                                                @if ($pulangAwal)
                                                     <span
                                                         class="ml-2 px-2 py-1 text-xs bg-orange-100 text-orange-800 rounded">Pulang
                                                         Awal</span>
@@ -272,6 +306,16 @@
                                         {{ number_format($absensi->lokasiPenempatan->radius) }} meter
                                     </div>
                                 </div>
+                                @if ($absensi->lokasiPenempatan->jam_masuk && $absensi->lokasiPenempatan->jam_pulang)
+                                    <div>
+                                        <span class="text-sm text-gray-500">Jam Kerja:</span>
+                                        <div class="text-sm font-medium text-gray-900">
+                                            {{ \Carbon\Carbon::parse($absensi->lokasiPenempatan->jam_masuk)->format('H:i') }}
+                                            -
+                                            {{ \Carbon\Carbon::parse($absensi->lokasiPenempatan->jam_pulang)->format('H:i') }}
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                         @else
                             <p class="text-sm text-gray-500">Tidak ada informasi lokasi</p>
