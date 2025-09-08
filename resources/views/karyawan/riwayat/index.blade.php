@@ -188,9 +188,10 @@
                     res.data.forEach(item => {
                         const statusBadge = item.status === 'keluar' ? 'bg-blue-100 text-blue-700' :
                             'bg-green-100 text-green-700';
-                        const lateBadge = item.is_late ?
+                        const lateBadge = item.jam_masuk ? (item.is_late ?
                             '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">Terlambat</span>' :
-                            '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Tepat Waktu</span>';
+                            '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Tepat Waktu</span>'
+                            ) : '';
 
                         const tr = document.createElement('tr');
                         tr.className = 'hover:bg-white/60';
@@ -206,22 +207,22 @@
                             <td class="py-3 px-3 text-center">
                                 ${item.foto_masuk ? 
                                     `<button onclick="showPhoto('${item.foto_masuk}', 'Bukti Masuk - ${item.tanggal}')" class="w-8 h-8 bg-primary-500 hover:bg-primary-600 text-white rounded-lg flex items-center justify-center transition-colors">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                                        </svg>
-                                                    </button>` : 
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                            </svg>
+                                                        </button>` : 
                                     `<span class="text-gray-400 text-xs">-</span>`
                                 }
                             </td>
                             <td class="py-3 px-3 text-center">
                                 ${item.foto_keluar ? 
                                     `<button onclick="showPhoto('${item.foto_keluar}', 'Bukti Keluar - ${item.tanggal}')" class="w-8 h-8 bg-secondary-500 hover:bg-secondary-600 text-white rounded-lg flex items-center justify-center transition-colors">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                                        </svg>
-                                                    </button>` : 
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                            </svg>
+                                                        </button>` : 
                                     `<span class="text-gray-400 text-xs">-</span>`
                                 }
                             </td>
@@ -245,22 +246,8 @@
 
                     // Use the is_late flag from the server for consistency
                     const onTime = res.data.filter(item => {
-                        if (!item.jam_masuk) {
-                            console.log('Missing jam_masuk:', item);
-                            return false;
-                        }
-
-                        // Log the data for debugging
-                        console.log('Attendance data:', {
-                            tanggal: item.tanggal,
-                            jamMasuk: item.jam_masuk,
-                            jamMasukLokasi: item.lokasi_jam_masuk || '08:00:00',
-                            isLate: item.is_late,
-                            status: item.status
-                        });
-
-                        // Return true if not late (on time)
-                        return !item.is_late;
+                        // Only count if jam_masuk exists and is not late
+                        return item.jam_masuk && !item.is_late;
                     }).length;
 
                     document.getElementById('sumOnTime').textContent = onTime;

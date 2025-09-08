@@ -42,7 +42,7 @@
                                         {{ $absensi->user->email }}
                                     </div>
                                     <div class="text-sm text-gray-500">
-                                        {{ $absensi->user->jabatan->nama_jabatan ?? 'Tidak ada jabatan' }}
+                                        {{ $absensi->user->jabatanRelation->nama_jabatan ?? 'Tidak ada jabatan' }}
                                     </div>
                                 </div>
                             </div>
@@ -92,25 +92,7 @@
                                         <div class="text-sm font-medium text-gray-900">
                                             @if ($absensi->jam_masuk)
                                                 {{ $absensi->jam_masuk->format('H:i:s') }}
-                                                @php
-                                                    $jamMasukLokasi = $absensi->lokasiPenempatan?->jam_masuk;
-                                                    if ($jamMasukLokasi) {
-                                                        $jamMasukLokasiTime = \Carbon\Carbon::parse(
-                                                            $jamMasukLokasi,
-                                                        )->format('H:i:s');
-                                                        $jamMasukLokasiCarbon = $absensi->tanggal
-                                                            ->copy()
-                                                            ->setTimeFromTimeString($jamMasukLokasiTime);
-                                                        $jamMasukActual = $absensi->jam_masuk;
-
-                                                        $isTerlambat = $jamMasukActual->gt($jamMasukLokasiCarbon);
-                                                    } else {
-                                                        // Default to 08:00:00 if no schedule time is set
-                                                        $defaultTime = $absensi->tanggal->copy()->setTime(8, 0, 0);
-                                                        $isTerlambat = $absensi->jam_masuk->gt($defaultTime);
-                                                    }
-                                                @endphp
-                                                @if ($isTerlambat)
+                                                @if ($absensi->isLate())
                                                     <span
                                                         class="ml-2 px-2 py-1 text-xs bg-red-100 text-red-800 rounded">Terlambat</span>
                                                 @else
@@ -286,7 +268,7 @@
                                 <div>
                                     <span class="text-sm text-gray-500">Alamat:</span>
                                     <div class="text-sm text-gray-900">
-                                        {{ $absensi->lokasiPenempatan->alamat }}
+                                        {{ $absensi->lokasiPenempatan->alamat_lengkap ?? 'Tidak ada alamat' }}
                                     </div>
                                 </div>
                                 <div>

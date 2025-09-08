@@ -176,23 +176,7 @@
                                 @if ($item->jam_masuk)
                                     <div class="font-medium text-gray-900 font-inter">
                                         {{ $item->jam_masuk->format('H:i:s') }}</div>
-                                    @php
-                                        $jamMasukLokasi = $item->lokasiPenempatan?->jam_masuk;
-                                        if ($jamMasukLokasi) {
-                                            $jamMasukLokasiTime = \Carbon\Carbon::parse($jamMasukLokasi)->format('H:i:s');
-                                            $jamMasukLokasiCarbon = $item->tanggal
-                                                ->copy()
-                                                ->setTimeFromTimeString($jamMasukLokasiTime);
-                                            $jamMasukActual = $item->jam_masuk;
-
-                                            $isTerlambat = $jamMasukActual->gt($jamMasukLokasiCarbon);
-                                        } else {
-                                            // Default to 08:00:00 if no schedule time is set
-                                            $defaultTime = $item->tanggal->copy()->setTime(8, 0, 0);
-                                            $isTerlambat = $item->jam_masuk->gt($defaultTime);
-                                        }
-                                    @endphp
-                                    @if ($isTerlambat)
+                                    @if ($item->isLate())
                                         <span
                                             class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 font-inter">
                                             <svg class="w-1.5 h-1.5 mr-1" fill="currentColor" viewBox="0 0 8 8">

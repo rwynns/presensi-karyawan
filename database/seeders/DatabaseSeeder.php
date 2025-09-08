@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             JabatanSeeder::class,        // Creates jabatan data
             LokasiPenempatanSeeder::class, // Creates lokasi data
             AdminUserSeeder::class,      // Depends on roles, jabatan, and lokasi being created
+            KaryawanAbsensiSeeder::class, // Creates test karyawan and absensi data
         ]);
     }
 }
