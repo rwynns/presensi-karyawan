@@ -19,16 +19,28 @@ class AdminController extends Controller
         // Data hari ini
         $today = Carbon::today();
 
+        // Hitung karyawan yang hadir (sudah absen masuk)
         $hadirHariIni = Absensi::whereDate('tanggal', $today)
             ->whereNotNull('jam_masuk')
             ->count();
 
+        // Hitung karyawan yang izin hari ini (status disetujui)
+        // Termasuk izin sakit, cuti, izin masuk terlambat, izin pulang awal
         $izinHariIni = Izin::whereDate('tanggal_mulai', '<=', $today)
             ->whereDate('tanggal_selesai', '>=', $today)
-            ->where('status', 'approved')
+            ->where('status', 'disetujui')
             ->count();
 
-        $tidakHadir = $totalKaryawan - ($hadirHariIni + $izinHariIni);
+        // Karyawan yang tidak hadir = total - (hadir + izin)
+        // Pastikan tidak negatif (bisa terjadi jika ada duplikasi data)
+        $tidakHadir = max(0, $totalKaryawan - ($hadirHariIni + $izinHariIni));
+
+        // Statistik tambahan untuk debugging/admin insight
+        $totalIzinPending = Izin::where('status', 'pending')->count();
+        $absensiLengkap = Absensi::whereDate('tanggal', $today)
+            ->whereNotNull('jam_masuk')
+            ->whereNotNull('jam_keluar')
+            ->count();
 
         // Recent activity - ambil presensi terbaru hari ini
         $recentActivity = Absensi::with('user')
@@ -53,6 +65,8 @@ class AdminController extends Controller
             'hadirHariIni',
             'izinHariIni',
             'tidakHadir',
+            'totalIzinPending',
+            'absensiLengkap',
             'recentActivity'
         ));
     }

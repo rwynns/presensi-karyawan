@@ -81,8 +81,12 @@
                                     </div>
                                     <div class="ml-5 w-0 flex-1">
                                         <dl>
-                                            <dt class="text-sm font-medium text-gray-500 truncate">Izin/Sakit</dt>
+                                            <dt class="text-sm font-medium text-gray-500 truncate">Izin Hari Ini</dt>
                                             <dd class="text-lg font-medium text-gray-900">{{ $izinHariIni ?? 0 }}</dd>
+                                            @if (isset($totalIzinPending) && $totalIzinPending > 0)
+                                                <dd class="text-xs text-orange-600 font-medium">{{ $totalIzinPending }}
+                                                    menunggu persetujuan</dd>
+                                            @endif
                                         </dl>
                                     </div>
                                 </div>

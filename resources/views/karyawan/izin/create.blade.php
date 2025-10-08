@@ -162,7 +162,7 @@
                                         <span class="text-xs text-gray-500">(sebelum jam 16:00)</span>
                                     </label>
                                     <input type="time" name="jam_pulang_awal" value="{{ old('jam_pulang_awal') }}"
-                                        min="12:00" max="15:59"
+                                        min="09:00" max="15:59"
                                         class="w-full rounded-xl border-gray-300 focus:border-primary-500 focus:ring-primary-500 transition-colors duration-200 @error('jam_pulang_awal') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror">
                                     @error('jam_pulang_awal')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

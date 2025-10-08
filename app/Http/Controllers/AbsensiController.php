@@ -465,6 +465,13 @@ class AbsensiController extends Controller
             $effectiveClockOutStartTime = Carbon::today()->setTimeFromTimeString($earlyDeparturePermission->jam_pulang_awal);
         }
 
+        // Logic untuk aturan absensi:
+        // 1. Jika ada izin masuk terlambat -> TIDAK BISA absen masuk sama sekali, tapi BISA absen keluar
+        // 2. Jika ada izin pulang awal -> TIDAK PERLU absen keluar (otomatis)
+
+        // Determine if user can clock in - TIDAK BISA jika ada izin terlambat
+        $canClockIn = $currentTime->lte($effectiveClockInDeadline) && is_null($latePermission);
+
         $status = [
             'has_clocked_in' => false,
             'has_clocked_out' => false,
@@ -480,13 +487,14 @@ class AbsensiController extends Controller
             ],
             'time_status' => [
                 'current_time' => $currentTime->format('H:i:s'),
-                'can_clock_in' => $currentTime->lte($effectiveClockInDeadline),
+                'can_clock_in' => $canClockIn, // TIDAK BISA jika ada izin terlambat
                 'can_clock_out' => $currentTime->gte($effectiveClockOutStartTime),
                 'clock_in_deadline' => $effectiveClockInDeadline->format('H:i:s'),
                 'clock_out_start_time' => $effectiveClockOutStartTime->format('H:i:s'),
                 'is_after_clock_in_deadline' => $currentTime->gt($effectiveClockInDeadline),
                 'is_before_clock_out_time' => $currentTime->lt($effectiveClockOutStartTime),
-                'time_message' => $this->getTimeMessage($currentTime, $effectiveClockInDeadline, $effectiveClockOutStartTime, $latePermission, $earlyDeparturePermission)
+                'time_message' => $this->getTimeMessage($currentTime, $effectiveClockInDeadline, $effectiveClockOutStartTime, $latePermission, $earlyDeparturePermission),
+                'has_late_permission_restriction' => !is_null($latePermission) // Flag khusus untuk frontend
             ]
         ];
 
@@ -508,12 +516,13 @@ class AbsensiController extends Controller
      */
     private function getTimeMessage($currentTime, $clockInDeadline, $clockOutStartTime, $latePermission = null, $earlyDeparturePermission = null)
     {
+        // Aturan khusus: Jika ada izin terlambat, tidak perlu absen masuk
+        if ($latePermission) {
+            return "Izin terlambat aktif";
+        }
+
         if ($currentTime->lte($clockInDeadline)) {
-            $remainingMinutes = $currentTime->diffInMinutes($clockInDeadline);
-            if ($latePermission) {
-                return "Waktu absen masuk tersisa " . $remainingMinutes . " menit (Ada izin terlambat sampai " . substr($latePermission->jam_masuk_maksimal, 0, 5) . ")";
-            }
-            return "Waktu absen masuk tersisa " . $remainingMinutes . " menit";
+            return "Waktu absen masuk masih berlaku";
         } elseif ($currentTime->lt($clockOutStartTime)) {
             if ($earlyDeparturePermission) {
                 return "Izin pulang awal pada jam " . substr($earlyDeparturePermission->jam_pulang_awal, 0, 5) . " (Tidak perlu absen keluar)";
