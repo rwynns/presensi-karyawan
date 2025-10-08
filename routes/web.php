@@ -122,6 +122,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/clock-out', [AbsensiController::class, 'clockOut'])->name('clock-out');
         Route::get('/status', [AbsensiController::class, 'getTodayStatus'])->name('status');
         Route::get('/history', [AbsensiController::class, 'getHistory'])->name('history');
+        Route::post('/auto-clockout-early', [AbsensiController::class, 'autoClockOutEarlyDeparture'])->name('auto-clockout-early');
     });
 
     // Debug routes

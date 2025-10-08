@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Absensi;
 use App\Models\LokasiPenempatan;
+use App\Models\Izin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -127,8 +128,46 @@ class AbsensiController extends Controller
 
         $user = Auth::user();
         $today = Carbon::today();
+        $currentTime = Carbon::now();
 
-        // Check if user already clocked in today
+        // Validasi waktu - absen masuk hanya diperbolehkan sebelum jam 08:00 KECUALI ada izin terlambat
+        $clockInDeadline = Carbon::today()->setTime(8, 0, 0); // 08:00:00
+
+        // Check for approved late arrival permission
+        $latePermission = Izin::getTodayTimePermission($user->id, 'izin_masuk_terlambat');
+
+        if ($currentTime->gt($clockInDeadline)) {
+            if ($latePermission) {
+                // User has late arrival permission, check against permitted time
+                $maxLateTime = Carbon::today()->setTimeFromTimeString($latePermission->jam_masuk_maksimal);
+
+                if ($currentTime->gt($maxLateTime)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Waktu absen masuk telah berakhir. Meskipun Anda memiliki izin terlambat, batas maksimal adalah jam {$latePermission->jam_masuk_maksimal} WIB.",
+                        'time_info' => [
+                            'current_time' => $currentTime->format('H:i:s'),
+                            'deadline' => $maxLateTime->format('H:i:s'),
+                            'is_late' => true,
+                            'has_permission' => true
+                        ]
+                    ]);
+                }
+                // User is within permitted late time, continue with normal flow
+            } else {
+                // No permission, normal deadline applies
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Waktu absen masuk telah berakhir. Absen masuk hanya diperbolehkan sebelum jam 08:00 WIB.',
+                    'time_info' => [
+                        'current_time' => $currentTime->format('H:i:s'),
+                        'deadline' => $clockInDeadline->format('H:i:s'),
+                        'is_late' => true,
+                        'has_permission' => false
+                    ]
+                ]);
+            }
+        }        // Check if user already clocked in today
         $existingAbsensi = Absensi::where('user_id', $user->id)
             ->where('tanggal', $today)
             ->first();
@@ -233,8 +272,45 @@ class AbsensiController extends Controller
 
         $user = Auth::user();
         $today = Carbon::today();
+        $currentTime = Carbon::now();
 
-        // Check if user has clocked in today
+        // Check for approved early departure permission first
+        $earlyDeparturePermission = Izin::getTodayTimePermission($user->id, 'izin_pulang_awal');
+
+        if ($earlyDeparturePermission) {
+            // User has early departure permission, check if it's time to leave
+            $earlyDepartureTime = Carbon::today()->setTimeFromTimeString($earlyDeparturePermission->jam_pulang_awal);
+
+            if ($currentTime->lt($earlyDepartureTime)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Belum waktunya pulang awal. Anda diizinkan pulang pada jam {$earlyDeparturePermission->jam_pulang_awal} WIB.",
+                    'time_info' => [
+                        'current_time' => $currentTime->format('H:i:s'),
+                        'allowed_time' => $earlyDepartureTime->format('H:i:s'),
+                        'is_too_early' => true,
+                        'has_early_permission' => true
+                    ]
+                ]);
+            }
+            // User can clock out early, skip normal time validation
+        } else {
+            // No early departure permission, apply normal time validation
+            $clockOutStartTime = Carbon::today()->setTime(16, 0, 0); // 16:00:00
+
+            if ($currentTime->lt($clockOutStartTime)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Belum waktunya absen keluar. Absen keluar hanya diperbolehkan setelah jam 16:00 WIB.',
+                    'time_info' => [
+                        'current_time' => $currentTime->format('H:i:s'),
+                        'allowed_time' => $clockOutStartTime->format('H:i:s'),
+                        'is_too_early' => true,
+                        'has_early_permission' => false
+                    ]
+                ]);
+            }
+        }        // Check if user has clocked in today
         $absensi = Absensi::where('user_id', $user->id)
             ->where('tanggal', $today)
             ->first();
@@ -361,17 +437,57 @@ class AbsensiController extends Controller
     {
         $user = Auth::user();
         $today = Carbon::today();
+        $currentTime = Carbon::now();
 
         $absensi = Absensi::where('user_id', $user->id)
             ->where('tanggal', $today)
             ->first();
+
+        // Check for special permissions today
+        $latePermission = Izin::getTodayTimePermission($user->id, 'izin_masuk_terlambat');
+        $earlyDeparturePermission = Izin::getTodayTimePermission($user->id, 'izin_pulang_awal');
+
+        // Define working hours
+        $clockInDeadline = Carbon::today()->setTime(8, 0, 0); // 08:00:00
+        $clockOutStartTime = Carbon::today()->setTime(16, 0, 0); // 16:00:00
+
+        // Adjust deadlines based on permissions
+        $effectiveClockInDeadline = $clockInDeadline;
+        $effectiveClockOutStartTime = $clockOutStartTime;
+
+        if ($latePermission) {
+            // Parse time string safely
+            $effectiveClockInDeadline = Carbon::today()->setTimeFromTimeString($latePermission->jam_masuk_maksimal);
+        }
+
+        if ($earlyDeparturePermission) {
+            // Parse time string safely
+            $effectiveClockOutStartTime = Carbon::today()->setTimeFromTimeString($earlyDeparturePermission->jam_pulang_awal);
+        }
 
         $status = [
             'has_clocked_in' => false,
             'has_clocked_out' => false,
             'jam_masuk' => null,
             'jam_keluar' => null,
-            'lokasi_penempatan' => $user->lokasiPenempatan ? $user->lokasiPenempatan->nama_lokasi : null
+            'lokasi_penempatan' => $user->lokasiPenempatan ? $user->lokasiPenempatan->nama_lokasi : null,
+            'special_permissions' => [
+                'has_late_permission' => !is_null($latePermission),
+                'late_permission_until' => $latePermission ? substr($latePermission->jam_masuk_maksimal, 0, 5) : null,
+                'has_early_departure' => !is_null($earlyDeparturePermission),
+                'early_departure_from' => $earlyDeparturePermission ? substr($earlyDeparturePermission->jam_pulang_awal, 0, 5) : null,
+                'early_departure_auto_clockout' => !is_null($earlyDeparturePermission) // Akan otomatis tidak perlu absen keluar
+            ],
+            'time_status' => [
+                'current_time' => $currentTime->format('H:i:s'),
+                'can_clock_in' => $currentTime->lte($effectiveClockInDeadline),
+                'can_clock_out' => $currentTime->gte($effectiveClockOutStartTime),
+                'clock_in_deadline' => $effectiveClockInDeadline->format('H:i:s'),
+                'clock_out_start_time' => $effectiveClockOutStartTime->format('H:i:s'),
+                'is_after_clock_in_deadline' => $currentTime->gt($effectiveClockInDeadline),
+                'is_before_clock_out_time' => $currentTime->lt($effectiveClockOutStartTime),
+                'time_message' => $this->getTimeMessage($currentTime, $effectiveClockInDeadline, $effectiveClockOutStartTime, $latePermission, $earlyDeparturePermission)
+            ]
         ];
 
         if ($absensi) {
@@ -385,6 +501,28 @@ class AbsensiController extends Controller
             'success' => true,
             'data' => $status
         ]);
+    }
+
+    /**
+     * Get time-based message for UI
+     */
+    private function getTimeMessage($currentTime, $clockInDeadline, $clockOutStartTime, $latePermission = null, $earlyDeparturePermission = null)
+    {
+        if ($currentTime->lte($clockInDeadline)) {
+            $remainingMinutes = $currentTime->diffInMinutes($clockInDeadline);
+            if ($latePermission) {
+                return "Waktu absen masuk tersisa " . $remainingMinutes . " menit (Ada izin terlambat sampai " . substr($latePermission->jam_masuk_maksimal, 0, 5) . ")";
+            }
+            return "Waktu absen masuk tersisa " . $remainingMinutes . " menit";
+        } elseif ($currentTime->lt($clockOutStartTime)) {
+            if ($earlyDeparturePermission) {
+                return "Izin pulang awal pada jam " . substr($earlyDeparturePermission->jam_pulang_awal, 0, 5) . " (Tidak perlu absen keluar)";
+            }
+            $remainingMinutes = $currentTime->diffInMinutes($clockOutStartTime);
+            return "Waktu absen keluar dalam " . $remainingMinutes . " menit";
+        } else {
+            return "Waktu absen keluar sudah dimulai";
+        }
     }
 
     /**
@@ -443,6 +581,58 @@ class AbsensiController extends Controller
         }
 
         return response()->json($debug);
+    }
+
+    /**
+     * Auto clock-out users with approved early departure permission
+     * This should be run via scheduler or manually trigger
+     */
+    public function autoClockOutEarlyDeparture()
+    {
+        $today = Carbon::today();
+        $currentTime = Carbon::now();
+
+        // Get all approved early departure permissions for today
+        $earlyDepartures = Izin::where('jenis_izin', 'izin_pulang_awal')
+            ->where('status', 'disetujui')
+            ->where('tanggal_mulai', '<=', $today)
+            ->where('tanggal_selesai', '>=', $today)
+            ->get();
+
+        $processed = 0;
+
+        foreach ($earlyDepartures as $permission) {
+            $departureTime = Carbon::today()->setTimeFromTimeString($permission->jam_pulang_awal);
+
+            // Only process if it's time to leave
+            if ($currentTime->gte($departureTime)) {
+                // Check if user has clocked in today but not clocked out
+                $absensi = Absensi::where('user_id', $permission->user_id)
+                    ->where('tanggal', $today)
+                    ->whereNotNull('jam_masuk')
+                    ->whereNull('jam_keluar')
+                    ->first();
+
+                if ($absensi) {
+                    // Auto clock-out
+                    $absensi->update([
+                        'jam_keluar' => $departureTime,
+                        'latitude_keluar' => $absensi->latitude_masuk, // Use same location as clock-in
+                        'longitude_keluar' => $absensi->longitude_masuk,
+                        'jarak_keluar' => $absensi->jarak_masuk,
+                        'foto_keluar' => null, // No photo for auto clock-out
+                        'status' => 'keluar'
+                    ]);
+                    $processed++;
+                }
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Auto clock-out processed for {$processed} users with early departure permission.",
+            'processed_count' => $processed
+        ]);
     }
 
     /**

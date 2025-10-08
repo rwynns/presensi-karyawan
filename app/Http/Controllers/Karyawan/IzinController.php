@@ -59,13 +59,25 @@ class IzinController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'jenis_izin' => 'required|in:sakit,cuti,keperluan_keluarga,keperluan_pribadi,lainnya',
+        // Base validation rules
+        $rules = [
+            'jenis_izin' => 'required|in:sakit,cuti,keperluan_keluarga,keperluan_pribadi,izin_masuk_terlambat,izin_pulang_awal,lainnya',
             'tanggal_mulai' => 'required|date|after_or_equal:today',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'alasan' => 'required|string|max:1000',
             'dokumen' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120' // Max 5MB
-        ], [
+        ];
+
+        // Add time-specific validation for late arrival and early departure
+        if (in_array($request->jenis_izin, ['izin_masuk_terlambat', 'izin_pulang_awal'])) {
+            if ($request->jenis_izin === 'izin_masuk_terlambat') {
+                $rules['jam_masuk_maksimal'] = 'required|date_format:H:i|after:08:00';
+            } elseif ($request->jenis_izin === 'izin_pulang_awal') {
+                $rules['jam_pulang_awal'] = 'required|date_format:H:i|before:16:00';
+            }
+        }
+
+        $messages = [
             'jenis_izin.required' => 'Jenis izin wajib dipilih.',
             'jenis_izin.in' => 'Jenis izin tidak valid.',
             'tanggal_mulai.required' => 'Tanggal mulai izin wajib diisi.',
@@ -76,8 +88,16 @@ class IzinController extends Controller
             'alasan.max' => 'Alasan maksimal 1000 karakter.',
             'dokumen.required' => 'Dokumen pendukung wajib diupload.',
             'dokumen.mimes' => 'Dokumen harus berformat JPG, JPEG, PNG, atau PDF.',
-            'dokumen.max' => 'Ukuran dokumen maksimal 5MB.'
-        ]);
+            'dokumen.max' => 'Ukuran dokumen maksimal 5MB.',
+            'jam_masuk_maksimal.required' => 'Jam masuk maksimal wajib diisi.',
+            'jam_masuk_maksimal.date_format' => 'Format jam tidak valid (HH:MM).',
+            'jam_masuk_maksimal.after' => 'Jam masuk maksimal harus setelah jam 08:00.',
+            'jam_pulang_awal.required' => 'Jam pulang awal wajib diisi.',
+            'jam_pulang_awal.date_format' => 'Format jam tidak valid (HH:MM).',
+            'jam_pulang_awal.before' => 'Jam pulang awal harus sebelum jam 16:00.',
+        ];
+
+        $request->validate($rules, $messages);
 
         // Check for overlapping izin requests
         $existingIzin = Izin::where('user_id', Auth::id())
@@ -105,16 +125,27 @@ class IzinController extends Controller
             $dokumenPath = $file->store('izin-documents', 'public');
         }
 
-        // Create izin request
-        Izin::create([
+        // Prepare data for izin creation
+        $izinData = [
             'user_id' => Auth::id(),
             'jenis_izin' => $request->jenis_izin,
             'tanggal_mulai' => $request->tanggal_mulai,
             'tanggal_selesai' => $request->tanggal_selesai,
             'alasan' => $request->alasan,
             'file_pendukung' => $dokumenPath,
-            'status' => 'pending'
-        ]);
+            'status' => 'pending',
+            'is_hari_ini' => $request->tanggal_mulai === today()->format('Y-m-d')
+        ];
+
+        // Add time-specific fields
+        if ($request->jenis_izin === 'izin_masuk_terlambat') {
+            $izinData['jam_masuk_maksimal'] = $request->jam_masuk_maksimal;
+        } elseif ($request->jenis_izin === 'izin_pulang_awal') {
+            $izinData['jam_pulang_awal'] = $request->jam_pulang_awal;
+        }
+
+        // Create izin request
+        Izin::create($izinData);
 
         return redirect()->route('karyawan.izin.index')
             ->with('success', 'Pengajuan izin berhasil disubmit. Menunggu persetujuan admin.');

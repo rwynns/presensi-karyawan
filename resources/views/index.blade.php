@@ -339,12 +339,16 @@
                 .catch(error => {
                     console.error('Error loading status:', error);
                 });
-        } // Update button states based on attendance status
+        }
+
+        // Update button states based on attendance status and time
         function updateButtonStates() {
             const clockInBtn = document.getElementById('clockInBtn');
             const clockOutBtn = document.getElementById('clockOutBtn');
 
-            if (attendanceStatus.has_clocked_in) {
+            // Clock In button logic
+            if (attendanceStatus.has_clocked_in || (attendanceStatus.time_status && !attendanceStatus.time_status
+                    .can_clock_in)) {
                 clockInBtn.disabled = true;
                 clockInBtn.classList.add('opacity-50', 'cursor-not-allowed');
             } else {
@@ -352,7 +356,17 @@
                 clockInBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             }
 
+            let shouldDisableClockOut = false;
+
             if (attendanceStatus.has_clocked_out || !attendanceStatus.has_clocked_in) {
+                shouldDisableClockOut = true;
+            } else if (attendanceStatus.special_permissions && attendanceStatus.special_permissions.has_early_departure) {
+                shouldDisableClockOut = true;
+            } else if (attendanceStatus.time_status && !attendanceStatus.time_status.can_clock_out) {
+                shouldDisableClockOut = true;
+            }
+
+            if (shouldDisableClockOut) {
                 clockOutBtn.disabled = true;
                 clockOutBtn.classList.add('opacity-50', 'cursor-not-allowed');
             } else {
@@ -368,21 +382,102 @@
             const jamMasukInfo = document.getElementById('jamMasukInfo');
             const jamKeluarInfo = document.getElementById('jamKeluarInfo');
 
+            // Check for special permissions
+            let hasSpecialPermissions = attendanceStatus.special_permissions &&
+                (attendanceStatus.special_permissions.has_late_permission || attendanceStatus.special_permissions
+                    .has_early_departure);
+
+            // Display status based on work completion and time constraints
             if (attendanceStatus.has_clocked_out) {
                 statusContent.innerHTML = `
                     <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
                     <p class="text-sm font-inter text-gray-600">Hari kerja selesai</p>
                 `;
             } else if (attendanceStatus.has_clocked_in) {
+                let workStatus = 'Sedang bekerja';
+
+                // Check for early departure permission
+                if (attendanceStatus.special_permissions && attendanceStatus.special_permissions.has_early_departure) {
+                    workStatus =
+                        `Sedang bekerja (Izin pulang awal jam ${attendanceStatus.special_permissions.early_departure_from})`;
+                } else if (attendanceStatus.time_status && !attendanceStatus.time_status.can_clock_out) {
+                    workStatus = `Sedang bekerja (Absen keluar: ${attendanceStatus.time_status.clock_out_start_time})`;
+                }
+
                 statusContent.innerHTML = `
                     <div class="w-3 h-3 bg-orange-500 rounded-full animate-pulse"></div>
-                    <p class="text-sm font-inter text-gray-600">Sedang bekerja</p>
+                    <p class="text-sm font-inter text-gray-600">${workStatus}</p>
                 `;
             } else {
+                // Not clocked in yet
+                let statusMessage = 'Siap untuk absensi';
+                let statusColor = 'green';
+
+                if (attendanceStatus.time_status) {
+                    if (!attendanceStatus.time_status.can_clock_in) {
+                        // Check if user has late permission
+                        if (attendanceStatus.special_permissions && attendanceStatus.special_permissions
+                            .has_late_permission) {
+                            statusMessage =
+                                `Izin terlambat sampai ${attendanceStatus.special_permissions.late_permission_until}`;
+                            statusColor = 'yellow';
+                        } else {
+                            statusMessage =
+                                `Waktu absen masuk telah berakhir (Max: ${attendanceStatus.time_status.clock_in_deadline})`;
+                            statusColor = 'red';
+                        }
+                    } else {
+                        if (attendanceStatus.special_permissions && attendanceStatus.special_permissions
+                            .has_late_permission) {
+                            statusMessage =
+                                `Siap absen masuk (Izin terlambat sampai: ${attendanceStatus.special_permissions.late_permission_until})`;
+                            statusColor = 'yellow';
+                        } else {
+                            statusMessage = `Siap absen masuk (Sampai: ${attendanceStatus.time_status.clock_in_deadline})`;
+                            statusColor = 'green';
+                        }
+                    }
+                }
+
                 statusContent.innerHTML = `
-                    <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                    <p class="text-sm font-inter text-gray-600">Siap untuk absensi</p>
+                    <div class="w-3 h-3 bg-${statusColor}-500 rounded-full animate-pulse"></div>
+                    <p class="text-sm font-inter text-gray-600">${statusMessage}</p>
                 `;
+            }
+
+            // Show special permissions info
+            if (hasSpecialPermissions) {
+                const permissionInfo = document.createElement('div');
+                permissionInfo.className = 'mt-2 p-2 bg-yellow-50 rounded-lg border border-yellow-200';
+
+                let permissionText = '';
+                if (attendanceStatus.special_permissions.has_late_permission) {
+                    permissionText +=
+                        `✅ Izin masuk terlambat sampai ${attendanceStatus.special_permissions.late_permission_until}<br>`;
+                }
+                if (attendanceStatus.special_permissions.has_early_departure) {
+                    permissionText +=
+                        `✅ Izin pulang awal jam ${attendanceStatus.special_permissions.early_departure_from} (Tidak perlu absen keluar)`;
+                }
+
+                permissionInfo.innerHTML = `
+                    <div class="text-xs text-yellow-800">
+                        <div class="font-semibold mb-1">Izin Khusus Hari Ini:</div>
+                        <div>${permissionText}</div>
+                    </div>
+                `;
+                statusContent.appendChild(permissionInfo);
+            }
+
+            // Show current time info if available
+            if (attendanceStatus.time_status) {
+                const timeInfo = document.createElement('div');
+                timeInfo.className = 'mt-2 text-xs text-gray-500';
+                timeInfo.innerHTML = `
+                    <div>Waktu sekarang: <span class="font-semibold">${attendanceStatus.time_status.current_time}</span></div>
+                    <div class="mt-1">${attendanceStatus.time_status.time_message}</div>
+                `;
+                statusContent.appendChild(timeInfo);
             }
 
             // Show attendance times if available
@@ -430,6 +525,14 @@
                 return;
             }
 
+            // Check time validity
+            if (attendanceStatus.time_status && !attendanceStatus.time_status.can_clock_in) {
+                showAlert('error', 'Waktu Absen Masuk Berakhir',
+                    `Maaf, waktu absen masuk telah berakhir. Absen masuk hanya diperbolehkan sebelum jam ${attendanceStatus.time_status.clock_in_deadline} WIB.\n\nWaktu sekarang: ${attendanceStatus.time_status.current_time} WIB`
+                );
+                return;
+            }
+
             openCameraFor('clock-in');
         });
 
@@ -447,6 +550,14 @@
 
             if (attendanceStatus.has_clocked_out) {
                 showAlert('info', 'Sudah Absen', 'Anda sudah melakukan absen keluar hari ini.');
+                return;
+            }
+
+            // Check time validity
+            if (attendanceStatus.time_status && !attendanceStatus.time_status.can_clock_out) {
+                showAlert('error', 'Belum Waktunya Absen Keluar',
+                    `Maaf, belum waktunya untuk absen keluar. Absen keluar hanya diperbolehkan setelah jam ${attendanceStatus.time_status.clock_out_start_time} WIB.\n\nWaktu sekarang: ${attendanceStatus.time_status.current_time} WIB`
+                );
                 return;
             }
 

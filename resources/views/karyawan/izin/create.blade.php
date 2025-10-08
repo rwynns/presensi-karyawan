@@ -79,20 +79,31 @@
                             <!-- Jenis Izin -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 font-poppins mb-2">Jenis Izin</label>
-                                <select name="jenis_izin" required
+                                <select name="jenis_izin" id="jenis_izin" required
                                     class="w-full rounded-xl border-gray-300 focus:border-primary-500 focus:ring-primary-500 transition-colors duration-200 @error('jenis_izin') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror">
                                     <option value="">Pilih Jenis Izin</option>
-                                    <option value="sakit" {{ old('jenis_izin') == 'sakit' ? 'selected' : '' }}>Sakit
-                                    </option>
-                                    <option value="cuti" {{ old('jenis_izin') == 'cuti' ? 'selected' : '' }}>Cuti</option>
-                                    <option value="keperluan_keluarga"
-                                        {{ old('jenis_izin') == 'keperluan_keluarga' ? 'selected' : '' }}>Keperluan Keluarga
-                                    </option>
-                                    <option value="keperluan_pribadi"
-                                        {{ old('jenis_izin') == 'keperluan_pribadi' ? 'selected' : '' }}>Keperluan Pribadi
-                                    </option>
-                                    <option value="lainnya" {{ old('jenis_izin') == 'lainnya' ? 'selected' : '' }}>Lainnya
-                                    </option>
+                                    <optgroup label="Izin Reguler">
+                                        <option value="sakit" {{ old('jenis_izin') == 'sakit' ? 'selected' : '' }}>Sakit
+                                        </option>
+                                        <option value="cuti" {{ old('jenis_izin') == 'cuti' ? 'selected' : '' }}>Cuti
+                                        </option>
+                                        <option value="keperluan_keluarga"
+                                            {{ old('jenis_izin') == 'keperluan_keluarga' ? 'selected' : '' }}>Keperluan
+                                            Keluarga</option>
+                                        <option value="keperluan_pribadi"
+                                            {{ old('jenis_izin') == 'keperluan_pribadi' ? 'selected' : '' }}>Keperluan
+                                            Pribadi</option>
+                                        <option value="lainnya" {{ old('jenis_izin') == 'lainnya' ? 'selected' : '' }}>
+                                            Lainnya</option>
+                                    </optgroup>
+                                    <optgroup label="Izin Waktu Khusus">
+                                        <option value="izin_masuk_terlambat"
+                                            {{ old('jenis_izin') == 'izin_masuk_terlambat' ? 'selected' : '' }}>Izin Masuk
+                                            Terlambat</option>
+                                        <option value="izin_pulang_awal"
+                                            {{ old('jenis_izin') == 'izin_pulang_awal' ? 'selected' : '' }}>Izin Pulang Awal
+                                        </option>
+                                    </optgroup>
                                 </select>
                                 @error('jenis_izin')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -104,7 +115,8 @@
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 font-poppins mb-2">Tanggal
                                         Mulai</label>
-                                    <input type="date" name="tanggal_mulai" value="{{ old('tanggal_mulai') }}" required
+                                    <input type="date" name="tanggal_mulai" id="tanggal_mulai"
+                                        value="{{ old('tanggal_mulai') }}" required
                                         min="{{ now()->timezone(config('app.timezone'))->toDateString() }}"
                                         class="w-full rounded-xl border-gray-300 focus:border-primary-500 focus:ring-primary-500 transition-colors duration-200 @error('tanggal_mulai') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror">
                                     @error('tanggal_mulai')
@@ -114,8 +126,9 @@
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 font-poppins mb-2">Tanggal
                                         Selesai</label>
-                                    <input type="date" name="tanggal_selesai" value="{{ old('tanggal_selesai') }}"
-                                        required min="{{ now()->timezone(config('app.timezone'))->toDateString() }}"
+                                    <input type="date" name="tanggal_selesai" id="tanggal_selesai"
+                                        value="{{ old('tanggal_selesai') }}" required
+                                        min="{{ now()->timezone(config('app.timezone'))->toDateString() }}"
                                         class="w-full rounded-xl border-gray-300 focus:border-primary-500 focus:ring-primary-500 transition-colors duration-200 @error('tanggal_selesai') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror">
                                     @error('tanggal_selesai')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -123,9 +136,45 @@
                                 </div>
                             </div>
 
+                            <!-- Time Fields for Special Permissions (Hidden by default) -->
+                            <div id="time_fields" class="hidden">
+                                <!-- Jam Masuk Maksimal untuk Izin Terlambat -->
+                                <div id="jam_masuk_field" class="hidden">
+                                    <label class="block text-sm font-medium text-gray-700 font-poppins mb-2">
+                                        Jam Masuk Maksimal
+                                        <span class="text-xs text-gray-500">(setelah jam 08:00)</span>
+                                    </label>
+                                    <input type="time" name="jam_masuk_maksimal" value="{{ old('jam_masuk_maksimal') }}"
+                                        min="08:01" max="17:00"
+                                        class="w-full rounded-xl border-gray-300 focus:border-primary-500 focus:ring-primary-500 transition-colors duration-200 @error('jam_masuk_maksimal') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror">
+                                    @error('jam_masuk_maksimal')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                    <p class="mt-1 text-xs text-gray-500">Tentukan sampai jam berapa Anda bisa masuk kerja
+                                        (maksimal jam 17:00)
+                                    </p>
+                                </div>
+
+                                <!-- Jam Pulang Awal untuk Izin Pulang Awal -->
+                                <div id="jam_pulang_field" class="hidden">
+                                    <label class="block text-sm font-medium text-gray-700 font-poppins mb-2">
+                                        Jam Pulang Awal
+                                        <span class="text-xs text-gray-500">(sebelum jam 16:00)</span>
+                                    </label>
+                                    <input type="time" name="jam_pulang_awal" value="{{ old('jam_pulang_awal') }}"
+                                        min="12:00" max="15:59"
+                                        class="w-full rounded-xl border-gray-300 focus:border-primary-500 focus:ring-primary-500 transition-colors duration-200 @error('jam_pulang_awal') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror">
+                                    @error('jam_pulang_awal')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                    <p class="mt-1 text-xs text-gray-500">Tentukan jam berapa Anda ingin pulang</p>
+                                </div>
+                            </div>
+
                             <!-- Alasan -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 font-poppins mb-2">Alasan Izin</label>
+                                <label class="block text-sm font-medium text-gray-700 font-poppins mb-2">Alasan
+                                    Izin</label>
                                 <textarea name="alasan" rows="4" required placeholder="Jelaskan alasan pengajuan izin dengan detail..."
                                     class="w-full rounded-xl border-gray-300 focus:border-primary-500 focus:ring-primary-500 transition-colors duration-200 resize-none @error('alasan') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror">{{ old('alasan') }}</textarea>
                                 @error('alasan')
@@ -253,6 +302,46 @@
                 fileNameDiv.classList.add('hidden');
             }
         }
+
+        // Handle jenis izin change to show/hide time fields
+        document.getElementById('jenis_izin').addEventListener('change', function() {
+            const timeFields = document.getElementById('time_fields');
+            const jamMasukField = document.getElementById('jam_masuk_field');
+            const jamPulangField = document.getElementById('jam_pulang_field');
+            const tanggalMulaiInput = document.getElementById('tanggal_mulai');
+            const tanggalSelesaiInput = document.getElementById('tanggal_selesai');
+            const jamMasukInput = document.querySelector('input[name="jam_masuk_maksimal"]');
+            const jamPulangInput = document.querySelector('input[name="jam_pulang_awal"]');
+
+            // Reset all time fields
+            timeFields.classList.add('hidden');
+            jamMasukField.classList.add('hidden');
+            jamPulangField.classList.add('hidden');
+            jamMasukInput.removeAttribute('required');
+            jamPulangInput.removeAttribute('required');
+
+            if (this.value === 'izin_masuk_terlambat') {
+                // Show time fields for late arrival
+                timeFields.classList.remove('hidden');
+                jamMasukField.classList.remove('hidden');
+                jamMasukInput.setAttribute('required', 'required');
+
+                // For late arrival, usually same day
+                const today = new Date().toISOString().split('T')[0];
+                tanggalMulaiInput.value = today;
+                tanggalSelesaiInput.value = today;
+            } else if (this.value === 'izin_pulang_awal') {
+                // Show time fields for early departure
+                timeFields.classList.remove('hidden');
+                jamPulangField.classList.remove('hidden');
+                jamPulangInput.setAttribute('required', 'required');
+
+                // For early departure, usually same day
+                const today = new Date().toISOString().split('T')[0];
+                tanggalMulaiInput.value = today;
+                tanggalSelesaiInput.value = today;
+            }
+        });
 
         // Update tanggal selesai minimum when tanggal mulai changes
         document.querySelector('input[name="tanggal_mulai"]').addEventListener('change', function() {
