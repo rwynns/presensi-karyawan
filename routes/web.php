@@ -147,4 +147,18 @@ Route::middleware(['auth'])->group(function () {
             'timestamp' => now()
         ]);
     });
+
+    // Debug route untuk cek user dan role
+    Route::get('/debug-user', function () {
+        $user = Auth::user();
+        return response()->json([
+            'user_id' => $user->id,
+            'nama' => $user->nama,
+            'role_id' => $user->role_id,
+            'role_name' => $user->role->nama_role ?? 'No role',
+            'is_active' => $user->is_active,
+            'can_access_karyawan_routes' => in_array($user->role_id, [2, 3]),
+            'izin_index_url' => route('karyawan.izin.index')
+        ]);
+    });
 });
